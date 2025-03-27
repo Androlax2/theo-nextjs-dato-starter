@@ -6,12 +6,9 @@ set -e
 REPO_OWNER="$1"
 REPO_NAME="$2"
 GITHUB_TOKEN="$3"
-DATOCMS_DRAFT="$4"
-DATOCMS_PUBLISHED="$5"
-DATOCMS_CMA="$6"
-SITE_URL="$7"
+ENV_FILE_STRING="$4"
 
-# Make GH token available to gh CLI
+# Export token for gh CLI
 export GH_TOKEN="$GITHUB_TOKEN"
 
 if ! command -v gh &> /dev/null; then
@@ -36,21 +33,20 @@ gh api "repos/${REPO_OWNER}/${REPO_NAME}" \
 
 echo "✅ Repository configuration applied."
 
-# Helper function to set both repo + dependabot secrets
-set_secret() {
-  local secret_name=$1
-  local secret_value=$2
+# Parse .env string into secrets
+echo "🔐 Parsing provided .env content..."
+while IFS='=' read -r key value; do
+  # Skip comments and empty lines
+  [[ "$key" =~ ^#.*$ || -z "$key" ]] && continue
 
-  echo "🔐 Setting repository secret: $secret_name"
-  gh secret set "$secret_name" --body "$secret_value" --repo "$REPO_OWNER/$REPO_NAME"
+  # Remove possible surrounding quotes
+  key=$(echo "$key" | xargs)
+  value=$(echo "$value" | sed -e 's/^["'\'']//;s/["'\'']$//' | xargs)
 
-  echo "🤖 Setting Dependabot secret: $secret_name"
-  gh secret set "$secret_name" --body "$secret_value" --repo "$REPO_OWNER/$REPO_NAME" --app dependabot
-}
+  echo "→ Setting secret: $key"
 
-set_secret DATOCMS_DRAFT_CONTENT_CDA_TOKEN "$DATOCMS_DRAFT"
-set_secret DATOCMS_PUBLISHED_CONTENT_CDA_TOKEN "$DATOCMS_PUBLISHED"
-set_secret DATOCMS_CMA_TOKEN "$DATOCMS_CMA"
-set_secret SITE_URL "$SITE_URL"
+  gh secret set "$key" --body "$value" --repo "$REPO_OWNER/$REPO_NAME"
+  gh secret set "$key" --body "$value" --repo "$REPO_OWNER/$REPO_NAME" --app dependabot
+done <<< "$ENV_FILE_STRING"
 
-echo "✅ All secrets set successfully."
+echo "✅ All secrets set successfully from .env."

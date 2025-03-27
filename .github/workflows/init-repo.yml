@@ -3,17 +3,8 @@ name: Initialize Repo
 on:
   workflow_dispatch:
     inputs:
-      datocms_draft:
-        description: DatoCMS Draft Content CDA Token
-        required: true
-      datocms_published:
-        description: DatoCMS Published Content CDA Token
-        required: true
-      datocms_cma:
-        description: DatoCMS CMA Token
-        required: true
-      site_url:
-        description: Site URL
+      env_file:
+        description: Paste your .env file contents here
         required: true
 
 jobs:
@@ -35,7 +26,4 @@ jobs:
             "${{ github.repository_owner }}" \
             "${{ github.event.repository.name }}" \
             "${{ secrets.REPO_ADMIN_PAT }}" \
-            "${{ github.event.inputs.datocms_draft }}" \
-            "${{ github.event.inputs.datocms_published }}" \
-            "${{ github.event.inputs.datocms_cma }}" \
-            "${{ github.event.inputs.site_url }}"
+            "${{ github.event.inputs.env_file }}"
