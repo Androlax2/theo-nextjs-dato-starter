@@ -110,13 +110,17 @@ fi
 if ! git ls-remote --exit-code origin gh-pages &>/dev/null; then
   echo "🔧 Creating gh-pages branch (empty)"
 
-  # Create an orphan gh-pages branch with empty commit
+  git config user.name "github-actions[bot]"
+  git config user.email "github-actions[bot]@users.noreply.github.com"
+
   git checkout --orphan gh-pages
   git reset --hard
+
   echo "# GitHub Pages placeholder" > index.html
   git add index.html
   git commit -m "chore: initialize gh-pages branch"
   git push origin gh-pages
+
   git checkout -
 fi
 
