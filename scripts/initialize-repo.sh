@@ -227,35 +227,23 @@ function remove_init_files() {
   fi
 }
 
-function uncomment_orginal_readme() {
-  echo "🧽 Removing original README section..."
+function cleanup_readme_sections() {
+  echo "🧼 Cleaning up README.md sections..."
 
   if [[ -f "README.md" ]]; then
-    sed -i.bak '/<!-- ORIGINAL-README-START -->/,/<!-- ORIGINAL-README-END -->/d' README.md
+    echo "🧽 Removing original README section..."
+    sed -i '/<!-- ORIGINAL-README-START -->/,/<!-- ORIGINAL-README-END -->/d' README.md
 
-    rm -f README.md.bak
-    git add README.md
-
-    echo "✅ Removed original README section and staged the changes."
-  else
-    echo "⚠️ README.md not found. Skipping."
-  fi
-}
-
-function clean_initialization_readme() {
-  echo "🧹 Cleaning up initialization block in README.md..."
-
-  if [[ -f "README.md" ]]; then
-    # Remove the entire section between INIT-REPO-START and INIT-REPO-END comments
+    echo "🧹 Removing initialization block..."
     sed -i '/<!-- INIT-REPO-START -->/,/<!-- INIT-REPO-END -->/d' README.md
 
-    # Remove any consecutive newlines left behind
+    echo "🧻 Tidying up empty lines..."
     sed -i '/^$/N;/^\n$/D' README.md
 
     git add README.md
-    echo "✅ Initialization block removed and README.md staged."
+    echo "✅ README.md cleaned and staged."
   else
-    echo "⚠️ README.md not found — skipping cleanup."
+    echo "⚠️ README.md not found — skipping all cleanups."
   fi
 }
 
@@ -269,6 +257,5 @@ enable_github_pages
 extract_datocms_project_info
 update_readme_urls
 remove_init_files
-clean_initialization_readme
-uncomment_orginal_readme
+cleanup_readme_sections
 final_push
