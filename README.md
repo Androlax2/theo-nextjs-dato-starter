@@ -30,7 +30,7 @@
 
 3. Let DatoCMS set everything up for you clicking this button below:
 
-[![Deploy with DatoCMS](https://dashboard.datocms.com/deploy/button.svg)](https://dashboard.datocms.com/deploy?repo=datocms%2Ftheo-nextjs-dato-starter%3Amain)
+[![Deploy with DatoCMS](https://dashboard.datocms.com/deploy/button.svg)](https://dashboard.datocms.com/deploy?repo=Androlax2%2Ftheo-nextjs-dato-starter%3Amain)
 
 ### Local setup
 
