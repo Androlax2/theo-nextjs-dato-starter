@@ -153,7 +153,7 @@ This will start Storybook on [http://localhost:6006](http://localhost:6006) wher
 
 ### GitHub Pages Storybook
 
-You can [📚 View Storybook](https://your-storybook-url.com) here.
+You can [📚 View Storybook](https://Androlax2.github.io/theo-nextjs-dato-starter) here.
 
 ## Component Generation
 
