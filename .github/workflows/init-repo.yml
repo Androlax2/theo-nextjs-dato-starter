@@ -6,6 +6,12 @@ on:
     branches:
       - main
 
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
+  repository-administration: write
+
 jobs:
   init:
     # TODO: Get this back after tests
