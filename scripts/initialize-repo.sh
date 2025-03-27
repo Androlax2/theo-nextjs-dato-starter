@@ -71,18 +71,19 @@ admin_url=""
 if [[ -n "${expected_keys[DATOCMS_CMA_TOKEN]}" ]]; then
   project_info=$(curl -s -H "Authorization: Bearer $DATOCMS_CMA_TOKEN" https://site-api.datocms.com/site)
 
-  project_id=$(echo "$project_info" | jq -r '.data.id')
-  admin_url="https://dashboard.datocms.com/projects/$project_id"
-
-  if [[ "$project_id" != "null" ]]; then
+  # Try to validate it
+  if echo "$project_info" | jq -e '.data.id' &>/dev/null; then
+    project_id=$(echo "$project_info" | jq -r '.data.id')
+    admin_url="https://dashboard.datocms.com/projects/$project_id"
     echo "📎 Found DatoCMS admin URL: $admin_url"
-    # Optionally set it as the repo homepage instead of the Vercel one
+
     gh api "repos/${REPO_OWNER}/${REPO_NAME}" \
       --method PATCH \
       --silent \
       --field homepage="$admin_url"
   else
-    echo "⚠️ Could not fetch DatoCMS project ID"
+    echo "⚠️ Failed to retrieve DatoCMS project ID. Full response:"
+    echo "$project_info" | jq
   fi
 else
   echo "⚠️ No CMA token provided, skipping DatoCMS project lookup"
