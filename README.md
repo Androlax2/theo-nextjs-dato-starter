@@ -68,7 +68,7 @@ Copy the sample .env file:
 cp .env.local.example .env.local
 ```
 
-In your [DatoCMS' project](https://met-4883.admin.datocms.com/editor), go to the **Settings** menu at the top and click **API tokens**.
+In your DatoCMS' project, go to the **Settings** menu at the top and click **API tokens**.
 
 Copy the values of the following tokens into the specified environment variable:
 
