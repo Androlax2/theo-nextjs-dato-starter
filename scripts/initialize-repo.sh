@@ -8,7 +8,6 @@ REPO_NAME="$2"
 GITHUB_TOKEN="$3"
 ENV_FILE_STRING="$4"
 
-# Export token for gh CLI
 export GH_TOKEN="$GITHUB_TOKEN"
 
 if ! command -v gh &> /dev/null; then
@@ -33,20 +32,30 @@ gh api "repos/${REPO_OWNER}/${REPO_NAME}" \
 
 echo "✅ Repository configuration applied."
 
-# Parse .env string into secrets
-echo "🔐 Parsing provided .env content..."
-while IFS='=' read -r key value; do
-  # Skip comments and empty lines
-  [[ "$key" =~ ^#.*$ || -z "$key" ]] && continue
+# Expected keys
+declare -A expected_keys=(
+  [DATOCMS_DRAFT_CONTENT_CDA_TOKEN]=1
+  [DATOCMS_PUBLISHED_CONTENT_CDA_TOKEN]=1
+  [DATOCMS_CMA_TOKEN]=1
+  [SITE_URL]=1
+)
 
-  # Remove possible surrounding quotes
-  key=$(echo "$key" | xargs)
-  value=$(echo "$value" | sed -e 's/^["'\'']//;s/["'\'']$//' | xargs)
+echo "🔐 Extracting and setting specific secrets..."
+
+while IFS='=' read -r raw_key raw_value; do
+  key=$(echo "$raw_key" | xargs)
+  value=$(echo "$raw_value" | sed -e 's/^["'\'']//;s/["'\'']$//' | xargs)
+
+  # Skip empty or commented lines
+  [[ -z "$key" || "$key" =~ ^# ]] && continue
+
+  # Skip keys we don't care about
+  [[ -z "${expected_keys[$key]}" ]] && continue
 
   echo "→ Setting secret: $key"
-
   gh secret set "$key" --body "$value" --repo "$REPO_OWNER/$REPO_NAME"
   gh secret set "$key" --body "$value" --repo "$REPO_OWNER/$REPO_NAME" --app dependabot
+
 done <<< "$ENV_FILE_STRING"
 
-echo "✅ All secrets set successfully from .env."
+echo "✅ Selected secrets set successfully."
