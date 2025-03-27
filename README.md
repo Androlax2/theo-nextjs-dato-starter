@@ -180,6 +180,11 @@ Open the **Actions** tab in this GitHub repo, then:
   - 🌐 Your deployed Vercel site URL (e.g. `https://your-site.vercel.app`)
   - 📊 _(Optional)_ Your Lighthouse CI App token
 
+> 🕐 After clicking Run, wait until the GitHub Action completes successfully.
+> You’ll see your repository auto-configure itself (secrets, README, GitHub Pages, etc.).
+
+Once it’s done, you’re ready to work with the repo as usual! ✅
+
 ---
 
 ### 🛟 5. If Initialization Fails...
