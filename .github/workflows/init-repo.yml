@@ -18,9 +18,6 @@ jobs:
       - name: Install jq
         run: sudo apt-get update && sudo apt-get install -y jq
 
-      - name: Setup GitHub CLI
-        uses: cli/gh-action@v2
-
       - name: Run initialization script
         run: |
           bash scripts/initialize-repo.sh ${{ github.repository_owner }} ${{ github.event.repository.name }} ${{ secrets.GITHUB_TOKEN }}
