@@ -99,10 +99,103 @@ After setting env vars, trigger a new deployment on Vercel.
 
 ### 12. 💻 Clone the Repo Locally 
 
-CONTENT HERE
+Clone the repo locally and follow the README on the newly created repo.
 
 ---
 <!-- INIT-REPO-END -->
+
+<!-- REPO-CLONED-START -->
+## ✅ You're Almost Ready!
+
+Now that you've cloned this repository, follow these steps to finish the setup:
+
+---
+
+### 🌱 1. Set Up Environment Variables
+
+Copy the example `.env` file into a working one:
+
+```bash
+cp .env.local.example .env.local
+```
+
+Then in your [DatoCMS project](https://dashboard.datocms.com):
+
+1. Go to **Settings → API tokens**
+2. Copy and paste the following values into your `.env.local` file:
+
+| Variable                             | Source / Description            |
+|--------------------------------------|---------------------------------|
+| `DATOCMS_PUBLISHED_CONTENT_CDA_TOKEN` | DatoCMS – CDA Only (Published)  |
+| `DATOCMS_DRAFT_CONTENT_CDA_TOKEN`     | DatoCMS – CDA Only (Draft)      |
+| `DATOCMS_CMA_TOKEN`                   | DatoCMS – CMA Only (Admin)      |
+| `SECRET_API_TOKEN`                    | Value generated earlier         |
+
+Make sure your `.env.local` contains all of the above before proceeding.
+
+---
+
+### 🔐 2. Create a GitHub Personal Access Token (PAT)
+
+Go to [https://github.com/settings/personal-access-tokens](https://github.com/settings/personal-access-tokens)  
+→ Click **“Generate new token (classic)”** or create a **fine-grained token**
+
+> **Scope: Read & Write access**
+
+Enable these permissions:
+
+#### 🔧 Repository permissions:
+- ✅ **Administration**
+- ✅ **Dependabot secrets**
+- ✅ **Environments**
+- ✅ **Pages**
+- ✅ **Secrets**
+
+📌 Save this token securely — you’ll use it during repository initialization.
+
+---
+
+### 📊 3. Install & Set Up Lighthouse CI
+
+1. Visit [https://app.lighthouse-ci.com/](https://app.lighthouse-ci.com/)
+2. Log in with GitHub
+3. Choose the repo you just cloned
+4. Copy the **project token**
+
+📌 Save this token — it will be used during the next step.
+
+---
+
+### ⚙️ 4. Initialize the Repository
+
+Open the **Actions** tab in this GitHub repo, then:
+
+- Find the **`Initialize Repo`** workflow on the left
+- Click **“Run workflow”** on the right side
+- Fill in the inputs:
+  - 🧪 Paste your full `.env.local` content
+  - 🔑 Your GitHub Personal Access Token
+  - 🌐 Your deployed Vercel site URL (e.g. `https://your-site.vercel.app`)
+  - 📊 Your Lighthouse CI App token
+
+---
+
+### 🛟 5. If Initialization Fails...
+
+No worries — you can still access the full documentation manually.
+
+Open `README.md` and look for:
+
+```html
+<!-- ORIGINAL-README-START  
+...
+ORIGINAL-README-END -->
+```
+
+Delete those two comment lines to reveal the full project documentation.
+
+---
+<!-- REPO-CLONED-END -->
 
 <!-- ORIGINAL-README-START
 # [__PROJECT_TITLE__]
