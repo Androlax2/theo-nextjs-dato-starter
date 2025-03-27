@@ -44,6 +44,15 @@
 <img width="1152" alt="Screenshot 2025-03-27 at 14 18 02" src="https://github.com/user-attachments/assets/c578a79d-4be1-474f-8d75-a97712fae8b7" />
 
 8. Deploy
+9. Generate a secret key on your terminal with `openssl rand -hex 32`. Change the `?token=secretTokenProtectingWebhookEndpointsFromBeingCalledByAnyone` on Dato, you change `secretTokenProtectingWebhookEndpointsFromBeingCalledByAnyone` by the one you've generated :
+
+- 🔄 Invalidate Next.js Cache Webhook (Project Settings > Webhooks)
+- And in the two plugins (Configuration > Plugins)
+
+10. Go in the settings of the Vercel project and on the environment variables, change :
+
+- `SECRET_API_TOKEN` by the one you've generated.
+- Add a `SITE_URL` environment variable with the Vercel domain it's deployed to.
 
 ### Local setup
 
@@ -63,7 +72,7 @@ Copy the values of the following tokens into the specified environment variable:
 - `DATOCMS_DRAFT_CONTENT_CDA_TOKEN`: CDA Only (Draft)
 - `DATOCMS_CMA_TOKEN`: CMA Only (Admin)
 
-Then set `SECRET_API_TOKEN` as a sicure string (you can use `openssl rand -hex 32` or any other cryptographically-secure random string generator). It will be used to safeguard all route handlers from incoming requests from untrusted sources:
+Then set `SECRET_API_TOKEN` as a sicure string (you can use `openssl rand -hex 32` or any other cryptographically-secure random string generator). It will be used to safeguard all route handlers from incoming requests from untrusted sources.
 
 #### Run your project locally
 
