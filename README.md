@@ -69,7 +69,7 @@ Copy the sample .env file:
 cp .env.local.example .env.local
 ```
 
-In your [DatoCMS project dashboard](https://your-datocms-project.admin.datocms.com), go to the **Settings** menu at the top and click **API tokens**.
+In your [DatoCMS project dashboard](https://theo-next-dato-starter-8449.admin.datocms.com), go to the **Settings** menu at the top and click **API tokens**.
 
 Copy the values of the following tokens into the specified environment variable:
 
