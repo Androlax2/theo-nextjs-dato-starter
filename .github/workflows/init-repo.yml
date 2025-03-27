@@ -6,9 +6,15 @@ on:
       env_file:
         description: Paste your .env values here.
         required: true
+        # TODO: Remove default
+        default: DATOCMS_DRAFT_CONTENT_CDA_TOKEN=95467ff63af3df6df1d0c302026882 DATOCMS_PUBLISHED_CONTENT_CDA_TOKEN=dd745772bd47b1e8374321d9be4f72 DATOCMS_CMA_TOKEN=65a48319c1da9eba0d8e2793047755 SITE_URL=http://localhost:3000
       website_url:
         description: Public URL of the deployed Vercel site.
         required: true
+        # TODO: Remove default
+        default: https://test.vercel.app
+
+# TODO: Add an input for the PAT instead of relying on the actions secrets.
 
 jobs:
   init:
