@@ -17,30 +17,37 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Check if gh-pages branch exists
+        id: check
         run: |
-          if ! git ls-remote --exit-code origin gh-pages &>/dev/null; then
-            echo "❌ gh-pages branch does not exist. Skipping deployment."
-            exit 0
+          if git ls-remote --exit-code origin gh-pages &>/dev/null; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
           fi
 
       - name: Create .env.local file
+        if: steps.check.outputs.exists == 'true'
         run: |
           echo "DATOCMS_PUBLISHED_CONTENT_CDA_TOKEN=${{ secrets.DATOCMS_PUBLISHED_CONTENT_CDA_TOKEN }}" >> .env.local
           echo "DATOCMS_DRAFT_CONTENT_CDA_TOKEN=${{ secrets.DATOCMS_DRAFT_CONTENT_CDA_TOKEN }}" >> .env.local
 
       - name: Setup Node.js
+        if: steps.check.outputs.exists == 'true'
         uses: actions/setup-node@v4
         with:
           node-version: "20"
           cache: 'npm'
 
       - name: Install dependencies
+        if: steps.check.outputs.exists == 'true'
         run: npm ci
 
       - name: Build Storybook
+        if: steps.check.outputs.exists == 'true'
         run: npm run build-storybook
 
       - name: Deploy Storybook to GitHub Pages
+        if: steps.check.outputs.exists == 'true'
         uses: JamesIves/github-pages-deploy-action@v4
         with:
           branch: gh-pages
