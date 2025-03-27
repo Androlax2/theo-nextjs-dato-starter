@@ -177,7 +177,7 @@ function update_readme_urls() {
 
   if [[ -f "README.md" ]]; then
     # Project title replacement
-    sed -i.bak "s/# \[__PROJECT_TITLE__\]/# \[${PROJECT_NAME}\]/g" README.md
+    sed -i.bak "s/# \[__PROJECT_TITLE__\]/# ${PROJECT_NAME}/g" README.md
 
     # DatoCMS URL replacement
     if [[ -n "$DATOCMS_CMA_TOKEN_EXTRACTED" ]]; then
@@ -239,9 +239,11 @@ function uncomment_orginal_readme() {
 
 function clean_initialization_readme() {
   if [[ -f "README.md" ]]; then
-    # Remove the comment markers
-    sed -i 's/^<!-- ORIGINAL-README-START//g' README.md
-    sed -i 's/ORIGINAL-README-END -->$//g' README.md
+    # Remove the entire section between INIT-REPO-START and INIT-REPO-END comments
+    sed -i '/<!-- INIT-REPO-START -->/,/<!-- INIT-REPO-END -->/d' README.md
+    
+    # Remove any consecutive newlines left behind
+    sed -i '/^$/N;/^\n$/D' README.md
     
     git add README.md
   fi

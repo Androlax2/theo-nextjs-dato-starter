@@ -1,12 +1,6 @@
 <!-- INIT-REPO-START -->
 # Theo NextJS Dato Starter
 
-## Summary
-
-- [Quick Start]
-
----
-
 # Quick Start
 
 1. Create an organization for the project in DatoCMS.
