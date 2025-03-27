@@ -77,6 +77,8 @@ if [[ -n "$DATOCMS_CMA_TOKEN_EXTRACTED" ]]; then
   project_info=$(curl -s \
   -H "Authorization: Bearer $DATOCMS_CMA_TOKEN_EXTRACTED" \
   -H "Accept: application/vnd.api+json" \
+  -H "Content-Type: application/vnd.api+json" \
+  -H "X-Api-Version: 3" \
   https://site-api.datocms.com/site)
 
   if echo "$project_info" | jq -e '.data.id' &>/dev/null; then
