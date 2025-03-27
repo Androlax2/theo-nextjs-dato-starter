@@ -176,6 +176,35 @@ function update_readme_urls() {
   fi
 }
 
+function remove_init_files() {
+  echo "🗑️ Removing initialization files..."
+  
+  # Remove the workflow file
+  if [[ -f ".github/workflows/init-repo.yml" ]]; then
+    git rm .github/workflows/init-repo.yml
+  fi
+
+  # Remove the init script
+  if [[ -f "scripts/init-repo.sh" ]]; then
+    git rm scripts/init-repo.sh
+  fi
+
+  # Remove the datocms.json file
+  if [[ -f "datocms.json" ]]; then
+    git rm datocms.json
+  fi
+
+  # Remove the post-deploy API route
+  if [[ -d "src/app/api/post-deploy" ]]; then
+    git rm -r src/app/api/post-deploy
+  fi
+
+  # If files were removed, commit the changes
+  if [[ -n $(git status -s) ]]; then
+    git commit -m "chore: remove repository initialization files"
+  fi
+}
+
 # Run all steps
 check_gh_cli_installed
 configure_repository_settings
@@ -184,4 +213,5 @@ ensure_working_branch
 ensure_gh_pages_branch
 enable_github_pages
 update_readme_urls
+remove_init_files
 final_push
