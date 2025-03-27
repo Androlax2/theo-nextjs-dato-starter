@@ -2,10 +2,12 @@
 
 set -e
 
+# Inputs
 REPO_OWNER="$1"
 REPO_NAME="$2"
 GITHUB_TOKEN="$3"
 ENV_STRING_RAW="$4"
+WEBSITE_URL="$5"
 
 export GH_TOKEN="$GITHUB_TOKEN"
 
@@ -27,7 +29,8 @@ gh api "repos/${REPO_OWNER}/${REPO_NAME}" \
   --field has_projects=false \
   --field has_wiki=false \
   --field squash_merge_commit_message=PR_BODY \
-  --field squash_merge_commit_title=PR_TITLE
+  --field squash_merge_commit_title=PR_TITLE \
+  --field homepage="$WEBSITE_URL"
 
 echo "✅ Repository configuration applied."
 

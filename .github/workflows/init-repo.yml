@@ -6,6 +6,9 @@ on:
       env_file:
         description: Paste your .env values here.
         required: true
+      website_url:
+        description: Public URL of the deployed Vercel site.
+        required: true
 
 jobs:
   init:
@@ -29,4 +32,5 @@ jobs:
             "${{ github.repository_owner }}" \
             "${{ github.event.repository.name }}" \
             "${{ secrets.REPO_ADMIN_PAT }}" \
-            "${{ github.event.inputs.env_file }}"
+            "${{ github.event.inputs.env_file }}" \
+            "${{ github.event.inputs.website_url }}"
