@@ -8,7 +8,8 @@ on:
 
 jobs:
   init:
-    if: github.event.created == true
+    # TODO: Get this back after tests
+    # if: github.event.created == true
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
