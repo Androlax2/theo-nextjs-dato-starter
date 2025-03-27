@@ -113,9 +113,7 @@ function update_readme_with_datocms_url() {
         echo "✏️ Replacing fake DatoCMS URL with real one: $actual_url"
         sed -i.bak "s|https://your-datocms-project.admin.datocms.com|$actual_url|g" README.md
         rm README.md.bak
-
         git add README.md
-        git commit -m "docs(readme): inject DatoCMS admin URL"
       fi
     fi
   else
@@ -168,25 +166,18 @@ function update_readme_with_storybook_url() {
     echo "✏️ Replacing placeholder Storybook URL in README.md with: $PAGES_URL"
     sed -i.bak "s|https://your-storybook-url.com|$PAGES_URL|g" README.md
     rm -f README.md.bak
-
     git add README.md
-    git commit -m "docs(readme): insert GitHub Pages Storybook link"
   fi
 }
 
 function final_push() {
   echo "📤 Pushing to branch $GIT_BRANCH..."
 
-  # Check if there are any changes to commit
-  if [[ -n $(git status -s) ]]; then
-    git add .
-    git commit -m "chore: repository initialization updates" || true
+  if [[ -n $(git diff --cached) ]]; then
+    git commit -m "chore: repository initialization updates"
   fi
 
-  # Set remote URL with token for authentication
   git remote set-url origin "https://x-access-token:${GITHUB_TOKEN}@github.com/${REPO_OWNER}/${REPO_NAME}.git"
-
-  # Force push the branch
   git push -f origin "$GIT_BRANCH"
   echo "✅ All changes pushed to branch '$GIT_BRANCH'"
 }
