@@ -10,6 +10,7 @@ ENV_STRING_RAW="$4"
 WEBSITE_URL="$5"
 
 # Auto-commit changes 
+# TODO: Put main when it's done
 GIT_BRANCH="test-init-repo-auto-update"
 
 export GH_TOKEN="$GITHUB_TOKEN"
@@ -105,18 +106,49 @@ else
   echo "⚠️ No DATOCMS_CMA_TOKEN found in env_file input"
 fi
 
-if [[ -f "README.md" && -n "$internal_domain" ]]; then
-  echo "📦 Committing README.md changes to branch: $GIT_BRANCH"
+# === Enable GitHub Pages ===
+echo "📘 Enabling GitHub Pages..."
 
-  git config --global user.name "github-actions[bot]"
-  git config --global user.email "github-actions[bot]@users.noreply.github.com"
+gh api "repos/${REPO_OWNER}/${REPO_NAME}/pages" \
+  --method PUT \
+  --silent \
+  --input - <<EOF
+{
+  "source": {
+    "branch": "gh-pages",
+    "path": "/"
+  }
+}
+EOF
 
-  git checkout -b "$GIT_BRANCH"
-  git add README.md
+echo "✅ GitHub Pages enabled for branch gh-pages"
+
+# === Inject Storybook URL into README ===
+PAGES_URL="https://${REPO_OWNER}.github.io/${REPO_NAME}"
+
+if [[ -f "README.md" ]]; then
+  echo "✏️ Replacing placeholder Storybook URL in README.md with: $PAGES_URL"
+  sed -i.bak "s|https://your-storybook-url.com|$PAGES_URL|g" README.md
+  rm -f README.md.bak
+fi
+
+# === Commit the changes ===
+echo "📦 Preparing to commit and push changes to branch: $GIT_BRANCH"
+
+git config --global user.name "github-actions[bot]"
+git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+git checkout -b "$GIT_BRANCH"
+
+# Check for changes in the working directory
+if [[ -n $(git status --porcelain) ]]; then
+  git add .
   git commit -m "chore: initialize project configuration"
+
+  git remote set-url origin "https://x-access-token:${GITHUB_TOKEN}@github.com/${REPO_OWNER}/${REPO_NAME}.git"
   git push origin "$GIT_BRANCH"
 
   echo "✅ Changes pushed to branch '$GIT_BRANCH'"
 else
-  echo "⚠️ README.md not updated or missing — skipping commit."
+  echo "ℹ️ No changes to commit — skipping push."
 fi
