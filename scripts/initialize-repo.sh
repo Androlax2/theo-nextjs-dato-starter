@@ -93,37 +93,6 @@ function set_secrets() {
   echo "✅ Secrets applied."
 }
 
-function update_readme_with_datocms_url() {
-  echo "🌐 Querying DatoCMS for project info..."
-
-  if [[ -n "$DATOCMS_CMA_TOKEN_EXTRACTED" ]]; then
-    project_info=$(curl -s \
-      -H "Authorization: Bearer $DATOCMS_CMA_TOKEN_EXTRACTED" \
-      -H "Accept: application/vnd.api+json" \
-      -H "Content-Type: application/vnd.api+json" \
-      -H "X-Api-Version: 3" \
-      https://site-api.datocms.com/site)
-
-    internal_domain=$(echo "$project_info" | jq -r '.data.attributes.internal_domain')
-    if [[ "$internal_domain" != "null" ]]; then
-      actual_url="https://$internal_domain"
-      echo "📎 Found internal DatoCMS admin domain: $actual_url"
-
-      if [[ -f "README.md" ]]; then
-        echo "✏️ Replacing fake DatoCMS URL with real one: $actual_url"
-        sed -i.bak "s|https://your-datocms-project.admin.datocms.com|$actual_url|g" README.md
-        rm README.md.bak
-
-        # Force add the README.md file explicitly
-        git add README.md
-        git diff --staged
-      fi
-    fi
-  else
-    echo "⚠️ No DATOCMS_CMA_TOKEN found in env_file input"
-  fi
-}
-
 function ensure_working_branch() {
   echo "🔀 Preparing working branch..."
   ORIGINAL_BRANCH=$(git rev-parse --abbrev-ref HEAD)
@@ -161,29 +130,14 @@ function enable_github_pages() {
   echo "✅ GitHub Pages is now configured for branch gh-pages"
 }
 
-function update_readme_with_storybook_url() {
-  echo "📗 Updating README with Storybook URL..."
-  PAGES_URL="https://${REPO_OWNER}.github.io/${REPO_NAME}"
-
-  if [[ -f "README.md" ]]; then
-    echo "✏️ Replacing placeholder Storybook URL in README.md with: $PAGES_URL"
-    sed -i.bak "s|https://your-storybook-url.com|$PAGES_URL|g" README.md
-    rm -f README.md.bak
-    
-    # Force add the README.md file explicitly
-    git add README.md
-    git diff --staged
-  fi
-}
-
 function final_push() {
   echo "📤 Pushing to branch $GIT_BRANCH..."
 
-  # Explicitly check if there are any staged changes
-  if [[ -n $(git diff --staged) ]]; then
+  # Stage ALL changes, not just cached changes
+  git add .
+
+  if [[ -n $(git status -s) ]]; then
     git commit -m "chore: repository initialization updates"
-  else
-    echo "ℹ️ No changes to commit"
   fi
 
   git remote set-url origin "https://x-access-token:${GITHUB_TOKEN}@github.com/${REPO_OWNER}/${REPO_NAME}.git"
@@ -191,13 +145,43 @@ function final_push() {
   echo "✅ All changes pushed to branch '$GIT_BRANCH'"
 }
 
+function update_readme_urls() {
+  echo "🌐 Updating README URLs..."
+
+  if [[ -f "README.md" ]]; then
+    # DatoCMS URL replacement
+    if [[ -n "$DATOCMS_CMA_TOKEN_EXTRACTED" ]]; then
+      project_info=$(curl -s \
+        -H "Authorization: Bearer $DATOCMS_CMA_TOKEN_EXTRACTED" \
+        -H "Accept: application/vnd.api+json" \
+        -H "Content-Type: application/vnd.api+json" \
+        -H "X-Api-Version: 3" \
+        https://site-api.datocms.com/site)
+
+      internal_domain=$(echo "$project_info" | jq -r '.data.attributes.internal_domain')
+      if [[ "$internal_domain" != "null" ]]; then
+        actual_datocms_url="https://$internal_domain"
+        sed -i.bak "s|https://your-datocms-project.admin.datocms.com|$actual_datocms_url|g" README.md
+      fi
+    else
+      sed -i.bak "s|https://your-datocms-project.admin.datocms.com|https://placeholder-datocms-url.admin.datocms.com|g" README.md
+    fi
+
+    # Storybook URL replacement
+    PAGES_URL="https://${REPO_OWNER}.github.io/${REPO_NAME}"
+    sed -i.bak "s|https://your-storybook-url.com|$PAGES_URL|g" README.md
+
+    rm -f README.md.bak
+    git add README.md
+  fi
+}
+
 # Run all steps
 check_gh_cli_installed
 configure_repository_settings
 set_secrets
-update_readme_with_datocms_url
 ensure_working_branch
 ensure_gh_pages_branch
 enable_github_pages
-update_readme_with_storybook_url
+update_readme_urls
 final_push
