@@ -52,7 +52,7 @@
 10. Go in the settings of the Vercel project and on the environment variables, change :
 
 - `SECRET_API_TOKEN` by the one you've generated.
-- Add a `SITE_URL` environment variable with the Vercel domain it's deployed to. (https://met-henna.vercel.app without trailing slash and with the protocol before the domain)
+- Add a `SITE_URL` environment variable with the Vercel domain it's deployed to. (https://example.com without trailing slash and with the protocol before the domain)
 
 11. Redeploy on Vercel
 12. Remove the `src/app/api/post-deploy/` folder and the `datocms.json` file from your repo.
