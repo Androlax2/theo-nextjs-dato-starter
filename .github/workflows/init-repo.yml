@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       env_file:
-        description: Paste your .env values here (even one-liner)
+        description: Paste your .env values here.
         required: true
 
 jobs:
