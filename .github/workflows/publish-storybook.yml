@@ -1,0 +1,38 @@
+name: Publish Storybook
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Create .env.local file
+        run: |
+          echo "DATOCMS_PUBLISHED_CONTENT_CDA_TOKEN=${{ secrets.DATOCMS_PUBLISHED_CONTENT_CDA_TOKEN }}" >> .env.local
+          echo "DATOCMS_DRAFT_CONTENT_CDA_TOKEN=${{ secrets.DATOCMS_DRAFT_CONTENT_CDA_TOKEN }}" >> .env.local
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build Storybook
+        run: npm run build-storybook
+
+      - name: Deploy Storybook to GitHub Pages
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          branch: gh-pages          # The branch the action should deploy to.
+          folder: storybook-static  # The folder where Storybook outputs the build.
+          token: ${{ secrets.GITHUB_TOKEN }}

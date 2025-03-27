@@ -1,0 +1,12 @@
+{
+  "Error": {
+    "title": "Something went wrong",
+    "message": "We encountered an unexpected error. Please try again.",
+    "retry": "Retry"
+  },
+  "NotFoundPage": {
+    "title": "404",
+    "message": "Oops! The page you’re looking for doesn’t exist.",
+    "cta": "Go back home"
+  }
+}

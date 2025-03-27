@@ -1,0 +1,18 @@
+type {{pascalCase name}}Props = {
+  /** The text to display */
+  text: string;
+  /**
+   * Is this a primary button?
+   * @default false
+   */
+  isPrimary?: boolean;
+};
+
+export default function {{pascalCase name}}({ text, isPrimary = false }: {{pascalCase name}}Props) {
+  return (
+    <div>
+      <p>{text}</p>
+      <p>{isPrimary ? "Primary" : "Not primary"}</p>
+    </div>
+  );
+}

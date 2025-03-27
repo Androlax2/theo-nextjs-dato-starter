@@ -1,0 +1,135 @@
+name: Lighthouse CI
+
+on:
+  pull_request:
+    branches: [main]
+    types:
+      - labeled
+      - opened
+      - synchronize
+      - reopened
+      - ready_for_review
+
+env:
+  LHCI_NUMBER_OF_RUNS: '1'
+  MAX_ATTEMPTS: '3'
+
+jobs:
+  lighthouse:
+    if: github.event.pull_request.draft == false
+    name: Lighthouse CI
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - name: Check for trigger label
+        id: check_label
+        run: |
+          LABEL_TRIGGER="Run Lighthouse"
+          PR_NUMBER=$(jq --raw-output .pull_request.number "$GITHUB_EVENT_PATH")
+          LABELS=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            "https://api.github.com/repos/${{ github.repository }}/issues/$PR_NUMBER/labels" | jq -r '.[].name')
+          echo "Labels on PR: $LABELS"
+          if echo "$LABELS" | grep -q "$LABEL_TRIGGER"; then
+            echo "label_found=true" >> $GITHUB_OUTPUT
+          else
+            echo "label_found=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Create .env.local file
+        if: steps.check_label.outputs.label_found == 'true'
+        run: |
+          echo "DATOCMS_PUBLISHED_CONTENT_CDA_TOKEN=${{ secrets.DATOCMS_PUBLISHED_CONTENT_CDA_TOKEN }}" >> .env.local
+          echo "DATOCMS_DRAFT_CONTENT_CDA_TOKEN=${{ secrets.DATOCMS_DRAFT_CONTENT_CDA_TOKEN }}" >> .env.local
+          echo "SITE_URL=http://localhost:3000" >> .env.local
+
+      - name: Set up Node.js
+        if: steps.check_label.outputs.label_found == 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Cache dependencies
+        if: steps.check_label.outputs.label_found == 'true'
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.npm
+            ${{ github.workspace }}/.next/cache
+          key: ${{ runner.os }}-nextjs-${{ hashFiles('**/package-lock.json') }}-${{ hashFiles('**/*.js', '**/*.jsx', '**/*.ts', '**/*.tsx') }}
+          restore-keys: |
+            ${{ runner.os }}-nextjs-${{ hashFiles('**/package-lock.json') }}-
+
+      - name: Install dependencies
+        if: steps.check_label.outputs.label_found == 'true'
+        run: npm ci
+
+      - name: Build
+        if: steps.check_label.outputs.label_found == 'true'
+        run: npm run build
+
+      - name: Run the project
+        if: steps.check_label.outputs.label_found == 'true'
+        run: npm run start &
+
+      - name: Run Lighthouse audits with retry and incremented runs
+        if: steps.check_label.outputs.label_found == 'true'
+        id: lhci_retry
+        env:
+          LHCI_GITHUB_APP_TOKEN: ${{ secrets.LHCI_GITHUB_APP_TOKEN }}
+        run: |
+          # Disable immediate exit on error so the loop can continue on failures
+          set +e
+          max_attempts=${MAX_ATTEMPTS}
+          attempt=1
+          while [ $attempt -le $max_attempts ]; do
+            echo "Attempt $attempt of $max_attempts"
+            current_runs=$attempt
+            echo "Running Lighthouse mobile audit with $current_runs run(s)..."
+            LHCI_NUMBER_OF_RUNS=$current_runs npm run lhci:mobile
+            mobile_status=$?
+            echo "Running Lighthouse desktop audit with $current_runs run(s)..."
+            LHCI_NUMBER_OF_RUNS=$current_runs npm run lhci:desktop
+            desktop_status=$?
+            if [ $mobile_status -eq 0 ] && [ $desktop_status -eq 0 ]; then
+              echo "Lighthouse audits passed on attempt $attempt."
+              exit 0
+            else
+              echo "Lighthouse audits failed on attempt $attempt."
+            fi
+            attempt=$((attempt + 1))
+          done
+          echo "Lighthouse audits failed after $max_attempts attempts."
+          exit 1
+
+      - name: Post a comment with instructions
+        if: always() && steps.check_label.outputs.label_found == 'false'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.payload.pull_request.number
+            });
+            const alreadyExists = comments.some(comment =>
+              comment.body.includes('<!-- Run Lighthouse Instructions -->')
+            );
+            if (alreadyExists) {
+              console.log("Instruction comment already exists. Skipping...");
+              return;
+            }
+            await github.rest.issues.createComment({
+              issue_number: context.payload.pull_request.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: "👋 **Hello!**\n\nIt looks like this PR doesn't have the **Run Lighthouse ![Run Lighthouse](https://img.shields.io/badge/Run%20Lighthouse-2ecc71.svg)** label yet. Lighthouse CI is a great tool for keeping our performance in check 🚀.\n\nPlease add the **Run Lighthouse ![Run Lighthouse](https://img.shields.io/badge/Run%20Lighthouse-2ecc71.svg)** label to trigger the Lighthouse audits.\n\nThanks for helping us maintain a high-quality codebase! 👍\n\n*Happy coding!*<!-- Run Lighthouse Instructions -->"
+            });
+
+      - name: Fail job if label is missing
+        if: steps.check_label.outputs.label_found == 'false'
+        run: exit 1

@@ -1,0 +1,10 @@
+@import "tailwindcss";
+
+@theme {
+    --color-*: initial;
+
+    --color-black: #000;
+    --color-white: #fff;
+
+    --font-*: initial;
+}

@@ -1,0 +1,12 @@
+{
+  "Error": {
+    "title": "Une erreur est survenue",
+    "message": "Nous avons rencontré une erreur inattendue. Veuillez réessayer.",
+    "retry": "Réessayer"
+  },
+  "NotFoundPage": {
+    "title": "404",
+    "message": "Oups ! La page que vous cherchez n’existe pas.",
+    "cta": "Retour à l’accueil"
+  }
+}

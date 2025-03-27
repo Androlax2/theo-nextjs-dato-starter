@@ -1,0 +1,41 @@
+name: Check TODO
+
+on:
+  pull_request:
+    types: [ opened, synchronize, reopened, ready_for_review ]
+
+jobs:
+  check_todo:
+    if: github.event.pull_request.draft == false
+    name: Check for TODO comments in source code
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Search for TODO comments
+        run: |
+          echo "🔍 Searching for TODO comments in source files..."
+
+          # Define target folders (customize as needed)
+          SEARCH_PATHS="./src ./messages"
+
+          # Run grep while excluding node_modules, build output, and git
+          TODOS=$(grep -Rn "TODO" $SEARCH_PATHS \
+            --exclude-dir={.git,.next,node_modules,dist,build,.github} \
+            --exclude=*.lock || true)
+
+          if [ -n "$TODOS" ]; then
+            echo -e "❌ Found TODO comments:\n"
+            echo "$TODOS" | while read -r line; do
+              FILE=$(echo "$line" | cut -d: -f1)
+              LINE_NUM=$(echo "$line" | cut -d: -f2)
+              CONTENT=$(echo "$line" | cut -d: -f3-)
+              echo "• \`$FILE:$LINE_NUM\`"
+              echo "  → $CONTENT"
+              echo
+            done
+            exit 1
+          else
+            echo "✅ No TODO comments found in source code."
+          fi

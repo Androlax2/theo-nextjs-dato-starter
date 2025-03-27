@@ -1,0 +1,33 @@
+name: Test
+
+on:
+  pull_request:
+    types: [ opened, synchronize, reopened, ready_for_review ]
+
+jobs:
+  test:
+    if: github.event.pull_request.draft == false
+    name: Test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Create .env.local
+        run: |
+          echo "DATOCMS_PUBLISHED_CONTENT_CDA_TOKEN=${{ secrets.DATOCMS_PUBLISHED_CONTENT_CDA_TOKEN }}" >> .env.local
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install dependencies
+        env:
+          DATOCMS_PUBLISHED_CONTENT_CDA_TOKEN: ${{ secrets.DATOCMS_PUBLISHED_CONTENT_CDA_TOKEN }}
+        run: npm ci
+
+      - name: Test
+        run: npm run test

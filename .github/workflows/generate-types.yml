@@ -1,0 +1,39 @@
+name: Generate Types
+
+on:
+  pull_request:
+    types: [ opened, synchronize, reopened, ready_for_review ]
+  schedule:
+    - cron: '0 0 * * *'  # Runs at midnight UTC every day
+
+jobs:
+  generate-schema:
+    if: github.event.pull_request.draft == false || github.event_name == 'push'
+    name: Generate DatoCMS GraphQL Schema
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Required to push changes
+
+      - name: Create .env.local
+        run: |
+          echo "DATOCMS_PUBLISHED_CONTENT_CDA_TOKEN=${{ secrets.DATOCMS_PUBLISHED_CONTENT_CDA_TOKEN }}" >> .env.local
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install dependencies & Generate Types (thanks to `prepare` script in `package.json`)
+        env:
+          DATOCMS_PUBLISHED_CONTENT_CDA_TOKEN: ${{ secrets.DATOCMS_PUBLISHED_CONTENT_CDA_TOKEN }}
+        run: npm ci
+
+      - name: Commit changes
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "chore(types): update DatoCMS GraphQL schema"
