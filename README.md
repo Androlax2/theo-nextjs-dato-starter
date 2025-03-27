@@ -187,9 +187,9 @@ No worries — you can still access the full documentation manually.
 Open `README.md` and look for:
 
 ```html
-<!-- ORIGINAL-README-START  
+&lt;!-- ORIGINAL-README-START  
 ...
-ORIGINAL-README-END -->
+ORIGINAL-README-END --&gt;
 ```
 
 Delete those two comment lines to reveal the full project documentation.
