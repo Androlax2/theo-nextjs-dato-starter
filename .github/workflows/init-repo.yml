@@ -27,9 +27,6 @@ jobs:
       - name: Install jq
         run: sudo apt-get update && sudo apt-get install -y jq
 
-      - name: Setup GitHub CLI
-        uses: cli/gh-action@v2.2.0
-
       - name: Run initialization script
         env:
           GH_TOKEN: ${{ secrets.REPO_ADMIN_PAT }}
