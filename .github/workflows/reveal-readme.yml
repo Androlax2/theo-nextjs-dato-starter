@@ -1,5 +1,8 @@
 name: 🔍 Test Reveal README
 
+permissions:
+  contents: write
+
 on:
   workflow_dispatch:
 
