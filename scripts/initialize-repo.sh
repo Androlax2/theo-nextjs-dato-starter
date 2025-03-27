@@ -228,26 +228,34 @@ function remove_init_files() {
 }
 
 function uncomment_orginal_readme() {
+  echo "🧽 Removing original README section..."
+
   if [[ -f "README.md" ]]; then
-    # Remove ORIGINAL-README-START from anywhere in the file
-    sed -i 's/<!-- ORIGINAL-README-START //g' README.md
-    
-    # Remove ORIGINAL-README-END --> from anywhere in the file
-    sed -i 's/ ORIGINAL-README-END -->//g' README.md
-    
+    sed -i.bak '/<!-- ORIGINAL-README-START -->/,/<!-- ORIGINAL-README-END -->/d' README.md
+
+    rm -f README.md.bak
     git add README.md
+
+    echo "✅ Removed original README section and staged the changes."
+  else
+    echo "⚠️ README.md not found. Skipping."
   fi
 }
 
 function clean_initialization_readme() {
+  echo "🧹 Cleaning up initialization block in README.md..."
+
   if [[ -f "README.md" ]]; then
     # Remove the entire section between INIT-REPO-START and INIT-REPO-END comments
     sed -i '/<!-- INIT-REPO-START -->/,/<!-- INIT-REPO-END -->/d' README.md
-    
+
     # Remove any consecutive newlines left behind
     sed -i '/^$/N;/^\n$/D' README.md
-    
+
     git add README.md
+    echo "✅ Initialization block removed and README.md staged."
+  else
+    echo "⚠️ README.md not found — skipping cleanup."
   fi
 }
 
