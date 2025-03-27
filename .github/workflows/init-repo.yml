@@ -1,10 +1,8 @@
-name: Initialize Repo
-
 on:
   workflow_dispatch:
     inputs:
       env_file:
-        description: Paste your .env file contents here
+        description: Paste your .env values here (even one-liner)
         required: true
 
 jobs:
@@ -12,11 +10,14 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
+      - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Install jq
-        run: sudo apt-get update && sudo apt-get install -y jq
+      - name: Mask values from input
+        run: |
+          echo "${{ github.event.inputs.env_file }}" | tr ' ' '\n' | grep '=' | cut -d= -f2- | while read val; do
+            echo "::add-mask::$val"
+          done
 
       - name: Run initialization script
         env:

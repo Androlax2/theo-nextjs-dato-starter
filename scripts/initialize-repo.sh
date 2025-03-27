@@ -2,11 +2,10 @@
 
 set -e
 
-# Inputs
 REPO_OWNER="$1"
 REPO_NAME="$2"
 GITHUB_TOKEN="$3"
-ENV_FILE_STRING="$4"
+ENV_STRING_RAW="$4"
 
 export GH_TOKEN="$GITHUB_TOKEN"
 
@@ -32,7 +31,7 @@ gh api "repos/${REPO_OWNER}/${REPO_NAME}" \
 
 echo "✅ Repository configuration applied."
 
-# Expected keys
+# Declare expected secret keys
 declare -A expected_keys=(
   [DATOCMS_DRAFT_CONTENT_CDA_TOKEN]=1
   [DATOCMS_PUBLISHED_CONTENT_CDA_TOKEN]=1
@@ -40,21 +39,24 @@ declare -A expected_keys=(
   [SITE_URL]=1
 )
 
-# Decode the one-liner ENV string (replace \n with real newlines)
-echo "🔐 Parsing and extracting secrets from single-line input..."
-decoded_env=$(echo -e "$ENV_FILE_STRING")
+# Normalize input string: convert spaces to newlines, remove comments
+env_lines=$(echo "$ENV_STRING_RAW" | tr ' ' '\n' | grep -E '^[A-Z_]+=.*')
+
+echo "🔐 Setting expected secrets..."
 
 while IFS='=' read -r raw_key raw_value; do
   key=$(echo "$raw_key" | xargs)
-  value=$(echo "$raw_value" | sed -e 's/^["'\'']//;s/["'\'']$//' | xargs)
+  value=$(echo "$raw_value" | xargs)
 
-  [[ -z "$key" || "$key" =~ ^# ]] && continue
+  [[ -z "$key" || -z "$value" ]] && continue
   [[ -z "${expected_keys[$key]}" ]] && continue
 
-  echo "→ Setting secret: $key"
+  echo "::add-mask::$value"
+  echo "→ Setting secret: $key = [REDACTED]"
+
   gh secret set "$key" --body "$value" --repo "$REPO_OWNER/$REPO_NAME"
   gh secret set "$key" --body "$value" --repo "$REPO_OWNER/$REPO_NAME" --app dependabot
 
-done <<< "$decoded_env"
+done <<< "$env_lines"
 
-echo "✅ Selected secrets set successfully."
+echo "✅ Secrets applied."
