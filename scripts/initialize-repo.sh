@@ -91,13 +91,13 @@ function set_secrets() {
     fi
   done <<< "$env_lines"
 
-  if [[ -n "$LHCI_GITHUB_APP_TOKEN" ]]; then
+  if [[ -n "${LHCI_GITHUB_APP_TOKEN:-}" && "$LHCI_GITHUB_APP_TOKEN" != "" ]]; then
     echo "→ Setting secret: LHCI_GITHUB_APP_TOKEN = [REDACTED]"
     echo "::add-mask::$LHCI_GITHUB_APP_TOKEN"
     gh secret set "LHCI_GITHUB_APP_TOKEN" --body "$LHCI_GITHUB_APP_TOKEN" --repo "$REPO_OWNER/$REPO_NAME"
     gh secret set "LHCI_GITHUB_APP_TOKEN" --body "$LHCI_GITHUB_APP_TOKEN" --repo "$REPO_OWNER/$REPO_NAME" --app dependabot
   else
-    echo "ℹ️ LHCI_GITHUB_APP_TOKEN not provided. Skipping."
+    echo "ℹ️ LHCI_GITHUB_APP_TOKEN not provided or empty. Skipping."
   fi
 
   echo "✅ Secrets applied."
@@ -251,8 +251,8 @@ function cleanup_readme_sections() {
     sed -i '/<!-- ORIGINAL-README-START/d' README.md
     sed -i '/ORIGINAL-README-END -->/d' README.md
 
-    sed -i '/<!-- REPO-CLONED-START/d' README.md
-    sed -i '/REPO-CLONED-END -->/d' README.md
+    echo "🧽 Removing cloned repo setup section..."
+    sed -i '/<!-- REPO-CLONED-START/,/REPO-CLONED-END -->/d' README.md
 
     echo "🧻 Tidying up empty lines..."
     sed -i '/^$/N;/^\n$/D' README.md
