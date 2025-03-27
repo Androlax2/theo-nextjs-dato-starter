@@ -232,7 +232,9 @@ function cleanup_readme_sections() {
 
   if [[ -f "README.md" ]]; then
     echo "🧽 Removing original README section..."
-    sed -i '/<!-- ORIGINAL-README-START/,/ORIGINAL-README-END -->/d' README.md
+
+    sed -i '/<!-- ORIGINAL-README-START/d' README.md
+    sed -i '/ORIGINAL-README-END -->/d' README.md
 
     echo "🧹 Removing initialization block..."
     sed -i '/<!-- INIT-REPO-START -->/,/<!-- INIT-REPO-END -->/d' README.md
