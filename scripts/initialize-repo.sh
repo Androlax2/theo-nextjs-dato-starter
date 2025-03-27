@@ -9,6 +9,9 @@ GITHUB_TOKEN="$3"
 ENV_STRING_RAW="$4"
 WEBSITE_URL="$5"
 
+# Auto-commit changes 
+GIT_BRANCH="test-init-repo-auto-update"
+
 export GH_TOKEN="$GITHUB_TOKEN"
 
 if ! command -v gh &> /dev/null; then
@@ -81,20 +84,39 @@ if [[ -n "$DATOCMS_CMA_TOKEN_EXTRACTED" ]]; then
   -H "X-Api-Version: 3" \
   https://site-api.datocms.com/site)
 
-  if echo "$project_info" | jq -e '.data.id' &>/dev/null; then
-    project_id=$(echo "$project_info" | jq -r '.data.id')
-    admin_url="https://dashboard.datocms.com/projects/$project_id"
-    echo "📎 Found DatoCMS admin URL: $admin_url"
+  # Extract DatoCMS internal domain and update README.md
+  internal_domain=$(echo "$project_info" | jq -r '.data.attributes.internal_domain')
+  if [[ "$internal_domain" != "null" ]]; then
+    admin_url="https://$internal_domain"
+    echo "📎 Found internal DatoCMS admin domain: $admin_url"
 
-    # Update GitHub repo homepage with DatoCMS admin URL
-    gh api "repos/${REPO_OWNER}/${REPO_NAME}" \
-      --method PATCH \
-      --silent \
-      --field homepage="$admin_url"
-  else
-    echo "⚠️ Failed to retrieve DatoCMS project ID. Full response:"
-    echo "$project_info" | jq
+    # Replace fake DatoCMS URL in README.md
+    if [[ -f "README.md" && -n "$internal_domain" ]]; then
+      actual_url="https://$internal_domain"
+      echo "✏️ Replacing fake DatoCMS URL with real one: $actual_url"
+
+      sed -i.bak "s|https://your-datocms-project.admin.datocms.com|$actual_url|g" README.md
+      rm README.md.bak
+    else
+      echo "⚠️ README.md not found or DatoCMS domain missing — skipping link replacement."
+    fi
   fi
 else
   echo "⚠️ No DATOCMS_CMA_TOKEN found in env_file input"
+fi
+
+if [[ -f "README.md" && -n "$internal_domain" ]]; then
+  echo "📦 Committing README.md changes to branch: $GIT_BRANCH"
+
+  git config --global user.name "github-actions[bot]"
+  git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+  git checkout -b "$GIT_BRANCH"
+  git add README.md
+  git commit -m "chore: initialize project configuration"
+  git push origin "$GIT_BRANCH"
+
+  echo "✅ Changes pushed to branch '$GIT_BRANCH'"
+else
+  echo "⚠️ README.md not updated or missing — skipping commit."
 fi
