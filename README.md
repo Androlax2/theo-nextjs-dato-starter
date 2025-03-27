@@ -104,7 +104,7 @@ Clone the repo locally and follow the README on the newly created repo.
 ---
 <!-- INIT-REPO-END -->
 
-<!-- REPO-CLONED-START -->
+<!-- REPO-CLONED-START
 ## ✅ You're Almost Ready!
 
 Now that you've cloned this repository, follow these steps to finish the setup:
@@ -195,7 +195,7 @@ ORIGINAL-README-END -->
 Delete those two comment lines to reveal the full project documentation.
 
 ---
-<!-- REPO-CLONED-END -->
+REPO-CLONED-END -->
 
 <!-- ORIGINAL-README-START
 # [__PROJECT_TITLE__]
