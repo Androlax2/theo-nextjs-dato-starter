@@ -7,17 +7,24 @@ on:
   workflow_dispatch:
     inputs:
       env_file:
-        description: Paste your .env values here.
+        description: >
+          Paste the full content of your .env.local file here (single line, space-separated).
+          Required: DatoCMS API tokens and SITE_URL.
         required: true
-        # TODO: Remove default
-        default: DATOCMS_DRAFT_CONTENT_CDA_TOKEN=95467ff63af3df6df1d0c302026882 DATOCMS_PUBLISHED_CONTENT_CDA_TOKEN=dd745772bd47b1e8374321d9be4f72 DATOCMS_CMA_TOKEN=65a48319c1da9eba0d8e2793047755 SITE_URL=http://localhost:3000
       website_url:
-        description: Public URL of the deployed Vercel site.
+        description: >
+          Public URL of your deployed Vercel site (e.g. https://your-site.vercel.app).
         required: true
-        # TODO: Remove default
-        default: https://test.vercel.app
-
-# TODO: Add an input for the PAT instead of relying on the actions secrets.
+      lhci_github_app_token:
+        description: >
+          (Optional) The Lighthouse CI App token from https://app.lighthouse-ci.com/.
+          Used only if you plan to integrate Lighthouse CI.
+        required: false
+      pat_token:
+        description: >
+          A GitHub Personal Access Token with repo admin, secrets, and pages access.
+          Generate it at https://github.com/settings/personal-access-tokens
+        required: true
 
 jobs:
   init:
@@ -28,14 +35,18 @@ jobs:
         run: |
           ENV_FILE=$(jq -r '.inputs.env_file' "$GITHUB_EVENT_PATH")
           WEBSITE_URL=$(jq -r '.inputs.website_url' "$GITHUB_EVENT_PATH")
+          LHCI_GITHUB_APP_TOKEN=$(jq -r '.inputs.lhci_github_app_token' "$GITHUB_EVENT_PATH")
+          PAT_TOKEN=$(jq -r '.inputs.pat_token' "$GITHUB_EVENT_PATH")
 
-          # Mask full input values
           echo "::add-mask::$ENV_FILE"
           echo "::add-mask::$WEBSITE_URL"
+          echo "::add-mask::$LHCI_GITHUB_APP_TOKEN"
+          echo "::add-mask::$PAT_TOKEN"
 
-          # Export as environment variables for later steps
           echo "ENV_FILE=$ENV_FILE" >> $GITHUB_ENV
           echo "WEBSITE_URL=$WEBSITE_URL" >> $GITHUB_ENV
+          echo "LHCI_GITHUB_APP_TOKEN=$LHCI_GITHUB_APP_TOKEN" >> $GITHUB_ENV
+          echo "PAT_TOKEN=$PAT_TOKEN" >> $GITHUB_ENV
 
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -47,11 +58,12 @@ jobs:
 
       - name: Run initialization script
         env:
-          GH_TOKEN: ${{ secrets.REPO_ADMIN_PAT }}
+          GH_TOKEN: ${{ env.PAT_TOKEN }}
         run: |
           bash scripts/initialize-repo.sh \
             "${{ github.repository_owner }}" \
             "${{ github.event.repository.name }}" \
-            "${{ secrets.REPO_ADMIN_PAT }}" \
+            "${{ env.PAT_TOKEN }}" \
             "$ENV_FILE" \
-            "$WEBSITE_URL"
+            "$WEBSITE_URL" \
+            "$LHCI_GITHUB_APP_TOKEN"

@@ -1,0 +1,44 @@
+name: 🔍 Test Reveal README
+
+on:
+  workflow_dispatch:
+
+jobs:
+  test-reveal-readme:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Create test branch
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          git fetch origin
+          git checkout -b test/reveal-readme
+
+      - name: Reveal real README content
+        run: |
+          echo "🔍 Revealing original README content..."
+
+          # Un-comment the ORIGINAL README
+          sed -i '/<!-- ORIGINAL-README-START/ d' README.md
+          sed -i '/ORIGINAL-README-END -->/ d' README.md
+
+          # Remove initialization guidance sections
+          echo "🧹 Removing initialization block..."
+          sed -i '/<!-- INIT-REPO-START -->/,/<!-- INIT-REPO-END -->/d' README.md
+
+          git add README.md
+
+          if [[ -n "$(git status --porcelain)" ]]; then
+            git commit -m "docs(readme): reveal real content in README (test)"
+          else
+            echo "ℹ️ No changes to commit."
+          fi
+
+      - name: Push changes to test branch
+        run: |
+          git push --force origin test/reveal-readme

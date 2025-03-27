@@ -28,6 +28,7 @@ REPO_NAME="$2"
 GITHUB_TOKEN="$3"
 ENV_STRING_RAW="$4"
 WEBSITE_URL="$5"
+LHCI_GITHUB_APP_TOKEN="$6"
 
 export GH_TOKEN="$GITHUB_TOKEN"
 
@@ -89,6 +90,15 @@ function set_secrets() {
       DATOCMS_CMA_TOKEN_EXTRACTED="$value"
     fi
   done <<< "$env_lines"
+
+  if [[ -n "$LHCI_GITHUB_APP_TOKEN" ]]; then
+    echo "→ Setting secret: LHCI_GITHUB_APP_TOKEN = [REDACTED]"
+    echo "::add-mask::$LHCI_GITHUB_APP_TOKEN"
+    gh secret set "LHCI_GITHUB_APP_TOKEN" --body "$LHCI_GITHUB_APP_TOKEN" --repo "$REPO_OWNER/$REPO_NAME"
+    gh secret set "LHCI_GITHUB_APP_TOKEN" --body "$LHCI_GITHUB_APP_TOKEN" --repo "$REPO_OWNER/$REPO_NAME" --app dependabot
+  else
+    echo "ℹ️ LHCI_GITHUB_APP_TOKEN not provided. Skipping."
+  fi
 
   echo "✅ Secrets applied."
 }
@@ -211,6 +221,11 @@ function remove_init_files() {
     git rm scripts/initialize-repo.sh
   fi
 
+  # Remove the reveal-readme workflow
+  if [[ -f ".github/workflows/reveal-readme.yml" ]]; then
+    git rm .github/workflows/reveal-readme.yml
+  fi
+
   # Remove the datocms.json file
   if [[ -f "datocms.json" ]]; then
     git rm datocms.json
@@ -236,8 +251,8 @@ function cleanup_readme_sections() {
     sed -i '/<!-- ORIGINAL-README-START/d' README.md
     sed -i '/ORIGINAL-README-END -->/d' README.md
 
-    echo "🧹 Removing initialization block..."
-    sed -i '/<!-- INIT-REPO-START -->/,/<!-- INIT-REPO-END -->/d' README.md
+    sed -i '/<!-- REPO-CLONED-START/d' README.md
+    sed -i '/REPO-CLONED-END -->/d' README.md
 
     echo "🧻 Tidying up empty lines..."
     sed -i '/^$/N;/^\n$/D' README.md
