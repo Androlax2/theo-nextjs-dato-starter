@@ -185,4 +185,6 @@ This command creates a new folder under `src/components/blocks` containing:
 
 Simply modify the generated file to implement your block.
 
+➡️ Let the command finish, do not stop it, it'll run `npm run generate-schema` after a block creation.
+
 **⚠️ Sometimes, there will be a little time before Typescript works again with the changes and GraphQL, If you encounter issues with that (field marked as not here but they should be there for instance). Restart your Typescript server. (Look on Google to do it for VSCode, JetBrains, ...) ⚠️**
