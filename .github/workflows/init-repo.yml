@@ -12,11 +12,14 @@ jobs:
     # if: github.event.created == true
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
+      - name: Checkout code
         uses: actions/checkout@v4
 
       - name: Install jq
         run: sudo apt-get update && sudo apt-get install -y jq
+
+      - name: Setup GitHub CLI
+        uses: cli/gh-action@v2
 
       - name: Run initialization script
         run: |
