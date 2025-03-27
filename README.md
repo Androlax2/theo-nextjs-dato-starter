@@ -46,6 +46,8 @@ Click **"Wait, I also want a website to be linked to the project!"**
 ### 6. ☁️ Choose Vercel  
 Select **Vercel** as your deployment target.
 
+<img width="965" alt="Screenshot 2025-03-27 at 19 06 16" src="https://github.com/user-attachments/assets/55b29b19-2ed7-4125-bbc4-bb494a25f40f" />
+
 ---
 
 ### 7. 🔗 Connect GitHub  
@@ -56,7 +58,8 @@ On the next screen, choose **GitHub** as your Git provider:
 ---
 
 ### 8. 🚀 Deploy the Project  
-Once connected, deploy your new project to Vercel.
+
+Follow the Vercel Wizard and deploy the project.
 
 ---
 
