@@ -52,7 +52,7 @@
 10. Go in the settings of the Vercel project and on the environment variables, change :
 
 - `SECRET_API_TOKEN` by the one you've generated.
-- Add a `SITE_URL` environment variable with the Vercel domain it's deployed to.
+- Add a `SITE_URL` environment variable with the Vercel domain it's deployed to. (https://met-henna.vercel.app without trailing slash and with the protocol before the domain)
 
 ### Local setup
 
