@@ -113,7 +113,10 @@ function update_readme_with_datocms_url() {
         echo "✏️ Replacing fake DatoCMS URL with real one: $actual_url"
         sed -i.bak "s|https://your-datocms-project.admin.datocms.com|$actual_url|g" README.md
         rm README.md.bak
+
+        # Force add the README.md file explicitly
         git add README.md
+        git diff --staged
       fi
     fi
   else
@@ -166,18 +169,21 @@ function update_readme_with_storybook_url() {
     echo "✏️ Replacing placeholder Storybook URL in README.md with: $PAGES_URL"
     sed -i.bak "s|https://your-storybook-url.com|$PAGES_URL|g" README.md
     rm -f README.md.bak
+    
+    # Force add the README.md file explicitly
     git add README.md
+    git diff --staged
   fi
 }
 
 function final_push() {
   echo "📤 Pushing to branch $GIT_BRANCH..."
 
-  # Stage ALL changes, not just cached changes
-  git add .
-
-  if [[ -n $(git status -s) ]]; then
+  # Explicitly check if there are any staged changes
+  if [[ -n $(git diff --staged) ]]; then
     git commit -m "chore: repository initialization updates"
+  else
+    echo "ℹ️ No changes to commit"
   fi
 
   git remote set-url origin "https://x-access-token:${GITHUB_TOKEN}@github.com/${REPO_OWNER}/${REPO_NAME}.git"
