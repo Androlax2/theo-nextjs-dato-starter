@@ -173,7 +173,10 @@ function update_readme_with_storybook_url() {
 function final_push() {
   echo "📤 Pushing to branch $GIT_BRANCH..."
 
-  if [[ -n $(git diff --cached) ]]; then
+  # Stage ALL changes, not just cached changes
+  git add .
+
+  if [[ -n $(git status -s) ]]; then
     git commit -m "chore: repository initialization updates"
   fi
 
