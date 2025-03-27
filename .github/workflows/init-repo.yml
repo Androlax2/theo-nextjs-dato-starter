@@ -1,3 +1,5 @@
+name: Initialize Repo
+
 on:
   workflow_dispatch:
     inputs:
