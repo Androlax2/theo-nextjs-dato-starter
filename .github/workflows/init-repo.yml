@@ -15,6 +15,12 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Show current directory and files
+        run: |
+          pwd
+          ls -la
+          ls -la scripts
+
       - name: Install jq
         run: sudo apt-get update && sudo apt-get install -y jq
 
