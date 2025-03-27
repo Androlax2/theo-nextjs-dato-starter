@@ -55,7 +55,8 @@
 - Add a `SITE_URL` environment variable with the Vercel domain it's deployed to. (https://example.com without trailing slash and with the protocol before the domain)
 
 11. Redeploy on Vercel
-12. Remove the `src/app/api/post-deploy/` folder and the `datocms.json` file from your repo.
+12. Clone the repo on your machine
+13. Remove the `src/app/api/post-deploy/` folder and the `datocms.json` file from your repo.
 
 ### Local setup
 
