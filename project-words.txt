@@ -2,3 +2,4 @@ datocms
 sitemapindex
 LHCI
 LQIP
+frontends
