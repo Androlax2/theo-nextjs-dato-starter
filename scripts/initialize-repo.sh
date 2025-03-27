@@ -106,6 +106,9 @@ else
   echo "⚠️ No DATOCMS_CMA_TOKEN found in env_file input"
 fi
 
+# Remember current branch
+ORIGINAL_BRANCH=$(git rev-parse --abbrev-ref HEAD)
+
 # Ensure gh-pages branch exists (even if empty)
 if ! git ls-remote --exit-code origin gh-pages &>/dev/null; then
   echo "🔧 Creating gh-pages branch (empty)"
@@ -121,7 +124,8 @@ if ! git ls-remote --exit-code origin gh-pages &>/dev/null; then
   git commit -m "chore: initialize gh-pages branch"
   git push origin gh-pages
 
-  git checkout -
+  # Return to the original branch
+  git checkout "$ORIGINAL_BRANCH"
 fi
 
 echo "📘 Enabling GitHub Pages..."
