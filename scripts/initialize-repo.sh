@@ -106,13 +106,13 @@ else
   echo "⚠️ No DATOCMS_CMA_TOKEN found in env_file input"
 fi
 
-# === Enable GitHub Pages ===
 echo "📘 Enabling GitHub Pages..."
 
-gh api "repos/${REPO_OWNER}/${REPO_NAME}/pages" \
-  --method PUT \
-  --silent \
-  --input - <<EOF
+enable_pages() {
+  gh api "repos/${REPO_OWNER}/${REPO_NAME}/pages" \
+    --method PUT \
+    --silent \
+    --input - <<EOF
 {
   "source": {
     "branch": "gh-pages",
@@ -120,8 +120,26 @@ gh api "repos/${REPO_OWNER}/${REPO_NAME}/pages" \
   }
 }
 EOF
+}
 
-echo "✅ GitHub Pages enabled for branch gh-pages"
+# Try to enable GitHub Pages, fallback if not created yet
+if ! enable_pages 2>/dev/null; then
+  echo "ℹ️ GitHub Pages not enabled yet — trying to create it..."
+
+  gh api "repos/${REPO_OWNER}/${REPO_NAME}/pages" \
+    --method POST \
+    --silent \
+    --input - <<EOF
+{
+  "source": {
+    "branch": "gh-pages",
+    "path": "/"
+  }
+}
+EOF
+fi
+
+echo "✅ GitHub Pages is now configured for branch gh-pages"
 
 # === Inject Storybook URL into README ===
 PAGES_URL="https://${REPO_OWNER}.github.io/${REPO_NAME}"
