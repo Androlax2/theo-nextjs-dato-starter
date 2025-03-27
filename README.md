@@ -27,7 +27,7 @@ Click the button below to launch the setup flow:
 ### 3. ⏳ Select Your Organization  
 After a few seconds, the dropdown should populate with your DatoCMS organizations:
 
-<img width="1141" alt="Organization dropdown" src="https://github.com/user-attachments/assets/5be29c39-9e2c-41e1-8a20-48df2e2d69d0" />
+<img width="1023"  alt="Organization dropdown" src="https://github.com/user-attachments/assets/e8c5255d-dfb3-4d89-bd06-2f8aad04afc4" />
 
 ---
 
