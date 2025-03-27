@@ -1,4 +1,4 @@
-name: 🔍 Test Reveal README
+name: Reveal Clone Repo README
 
 permissions:
   contents: write
@@ -26,9 +26,9 @@ jobs:
         run: |
           echo "🔍 Revealing original README content..."
 
-          # Un-comment the ORIGINAL README
-          sed -i '/<!-- ORIGINAL-README-START/ d' README.md
-          sed -i '/ORIGINAL-README-END -->/ d' README.md
+          # Un-comment the REPO CLONED comments
+          sed -i '/<!-- REPO-CLONED-START/ d' README.md
+          sed -i '/REPO-CLONED-END -->/ d' README.md
 
           # Remove initialization guidance sections
           echo "🧹 Removing initialization block..."

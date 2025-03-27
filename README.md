@@ -155,14 +155,16 @@ Enable these permissions:
 
 ---
 
-### 📊 3. Install & Set Up Lighthouse CI
+### 📊 3. (Optional) Set Up Lighthouse CI
+
+> 🧪 This step is **optional** — only needed if you want to enable Lighthouse CI reports in GitHub Actions.
 
 1. Visit [https://app.lighthouse-ci.com/](https://app.lighthouse-ci.com/)
 2. Log in with GitHub
 3. Choose the repo you just cloned
 4. Copy the **project token**
 
-📌 Save this token — it will be used during the next step.
+📌 Save this token — it will be used during the next step if you enable Lighthouse CI.
 
 ---
 
@@ -176,7 +178,7 @@ Open the **Actions** tab in this GitHub repo, then:
   - 🧪 Paste your full `.env.local` content
   - 🔑 Your GitHub Personal Access Token
   - 🌐 Your deployed Vercel site URL (e.g. `https://your-site.vercel.app`)
-  - 📊 Your Lighthouse CI App token
+  - 📊 _(Optional)_ Your Lighthouse CI App token
 
 ---
 

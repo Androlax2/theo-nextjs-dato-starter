@@ -221,9 +221,9 @@ function remove_init_files() {
     git rm scripts/initialize-repo.sh
   fi
 
-  # Remove the reveal-readme workflow
-  if [[ -f ".github/workflows/reveal-readme.yml" ]]; then
-    git rm .github/workflows/reveal-readme.yml
+  # Remove the reveal-clone-repo-readme workflow
+  if [[ -f ".github/workflows/reveal-clone-repo-readme.yml" ]]; then
+    git rm .github/workflows/reveal-clone-repo-readme.yml
   fi
 
   # Remove the datocms.json file
