@@ -4,25 +4,25 @@ permissions:
   contents: write
 
 on:
-  workflow_dispatch:
+  push:
+    branches:
+      - main
 
 jobs:
-  test-reveal-readme:
+  reveal-clone-repo-readme:
+    if: github.event.created == true  # Only run on the first push that creates the branch
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Create test branch
+      - name: Set up Git config
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
-          git fetch origin
-          git checkout -b test/reveal-readme
-
-      - name: Reveal real README content
+      - name: Reveal README steps content
         run: |
           echo "🔍 Revealing original README content..."
 
@@ -37,11 +37,8 @@ jobs:
           git add README.md
 
           if [[ -n "$(git status --porcelain)" ]]; then
-            git commit -m "docs(readme): reveal real content in README (test)"
+            git commit -m "docs(readme): reveal README steps content in README"
+            git push origin main
           else
             echo "ℹ️ No changes to commit."
           fi
-
-      - name: Push changes to test branch
-        run: |
-          git push --force origin test/reveal-readme
