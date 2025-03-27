@@ -91,13 +91,18 @@ function set_secrets() {
     fi
   done <<< "$env_lines"
 
-  if [[ -n "${LHCI_GITHUB_APP_TOKEN:-}" && "$LHCI_GITHUB_APP_TOKEN" != "" ]]; then
-    echo "→ Setting secret: LHCI_GITHUB_APP_TOKEN = [REDACTED]"
-    echo "::add-mask::$LHCI_GITHUB_APP_TOKEN"
-    gh secret set "LHCI_GITHUB_APP_TOKEN" --body "$LHCI_GITHUB_APP_TOKEN" --repo "$REPO_OWNER/$REPO_NAME"
-    gh secret set "LHCI_GITHUB_APP_TOKEN" --body "$LHCI_GITHUB_APP_TOKEN" --repo "$REPO_OWNER/$REPO_NAME" --app dependabot
+  if [[ -n "${LHCI_GITHUB_APP_TOKEN}" ]]; then
+    trimmed_token=$(echo "$LHCI_GITHUB_APP_TOKEN" | xargs)
+    if [[ -n "$trimmed_token" ]]; then
+      echo "→ Setting secret: LHCI_GITHUB_APP_TOKEN = [REDACTED]"
+      echo "::add-mask::$trimmed_token"
+      gh secret set "LHCI_GITHUB_APP_TOKEN" --body "$trimmed_token" --repo "$REPO_OWNER/$REPO_NAME"
+      gh secret set "LHCI_GITHUB_APP_TOKEN" --body "$trimmed_token" --repo "$REPO_OWNER/$REPO_NAME" --app dependabot
+    else
+      echo "ℹ️ LHCI_GITHUB_APP_TOKEN is empty after trimming. Skipping."
+    fi
   else
-    echo "ℹ️ LHCI_GITHUB_APP_TOKEN not provided or empty. Skipping."
+    echo "ℹ️ LHCI_GITHUB_APP_TOKEN not provided. Skipping."
   fi
 
   echo "✅ Secrets applied."
