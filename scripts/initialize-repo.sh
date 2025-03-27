@@ -106,6 +106,20 @@ else
   echo "⚠️ No DATOCMS_CMA_TOKEN found in env_file input"
 fi
 
+# Ensure gh-pages branch exists (even if empty)
+if ! git ls-remote --exit-code origin gh-pages &>/dev/null; then
+  echo "🔧 Creating gh-pages branch (empty)"
+
+  # Create an orphan gh-pages branch with empty commit
+  git checkout --orphan gh-pages
+  git reset --hard
+  echo "# GitHub Pages placeholder" > index.html
+  git add index.html
+  git commit -m "chore: initialize gh-pages branch"
+  git push origin gh-pages
+  git checkout -
+fi
+
 echo "📘 Enabling GitHub Pages..."
 
 enable_pages() {
