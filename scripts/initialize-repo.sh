@@ -181,8 +181,8 @@ function update_readme_urls() {
 
     # DatoCMS URL replacement
     if [[ -n "$DATOCMS_CMA_TOKEN_EXTRACTED" ]]; then
-      if [[ "$internal_domain" != "null" ]]; then
-        actual_datocms_url="https://$internal_domain"
+      if [[ "$INTERNAL_DOMAIN" != "null" && -n "$INTERNAL_DOMAIN" ]]; then
+        actual_datocms_url="https://$INTERNAL_DOMAIN"
         sed -i.bak "s|https://your-datocms-project.admin.datocms.com|$actual_datocms_url|g" README.md
       fi
     else
