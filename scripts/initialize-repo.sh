@@ -40,22 +40,21 @@ declare -A expected_keys=(
   [SITE_URL]=1
 )
 
-echo "🔐 Extracting and setting specific secrets..."
+# Decode the one-liner ENV string (replace \n with real newlines)
+echo "🔐 Parsing and extracting secrets from single-line input..."
+decoded_env=$(echo -e "$ENV_FILE_STRING")
 
 while IFS='=' read -r raw_key raw_value; do
   key=$(echo "$raw_key" | xargs)
   value=$(echo "$raw_value" | sed -e 's/^["'\'']//;s/["'\'']$//' | xargs)
 
-  # Skip empty or commented lines
   [[ -z "$key" || "$key" =~ ^# ]] && continue
-
-  # Skip keys we don't care about
   [[ -z "${expected_keys[$key]}" ]] && continue
 
   echo "→ Setting secret: $key"
   gh secret set "$key" --body "$value" --repo "$REPO_OWNER/$REPO_NAME"
   gh secret set "$key" --body "$value" --repo "$REPO_OWNER/$REPO_NAME" --app dependabot
 
-done <<< "$ENV_FILE_STRING"
+done <<< "$decoded_env"
 
 echo "✅ Selected secrets set successfully."
