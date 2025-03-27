@@ -24,9 +24,5 @@
     }
   },
   "livePreviewUrl": "https://theo-nextjs-dato-starter.vercel.app/",
-  "postDeploy": {
-    "type": "apiCall",
-    "url": "/api/post-deploy",
-    "description": "Setting up the DatoCMS project..."
-  }
+  "postInstallUrl": "/api/post-install"
 }
