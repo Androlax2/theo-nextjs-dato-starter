@@ -2,29 +2,43 @@ name: Initialize Repo
 
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - main
+    inputs:
+      datocms_draft:
+        description: DatoCMS Draft Content CDA Token
+        required: true
+      datocms_published:
+        description: DatoCMS Published Content CDA Token
+        required: true
+      datocms_cma:
+        description: DatoCMS CMA Token
+        required: true
+      site_url:
+        description: Site URL
+        required: true
 
 jobs:
   init:
-    # TODO: Get this back after tests
-    # if: github.event.created == true
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Show current directory and files
-        run: |
-          pwd
-          ls -la
-          ls -la scripts
-
       - name: Install jq
         run: sudo apt-get update && sudo apt-get install -y jq
+
+      - name: Setup GitHub CLI
+        uses: cli/gh-action@v2.2.0
 
       - name: Run initialization script
         env:
           GH_TOKEN: ${{ secrets.REPO_ADMIN_PAT }}
-        run: bash scripts/initialize-repo.sh ${{ github.repository_owner }} ${{ github.event.repository.name }} ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          bash scripts/initialize-repo.sh \
+            "${{ github.repository_owner }}" \
+            "${{ github.event.repository.name }}" \
+            "${{ secrets.REPO_ADMIN_PAT }}" \
+            "${{ github.event.inputs.datocms_draft }}" \
+            "${{ github.event.inputs.datocms_published }}" \
+            "${{ github.event.inputs.datocms_cma }}" \
+            "${{ github.event.inputs.site_url }}"
