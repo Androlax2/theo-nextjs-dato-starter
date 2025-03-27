@@ -6,6 +6,22 @@ set -e
 git config user.name "github-actions[bot]"
 git config user.email "github-actions[bot]@users.noreply.github.com"
 
+# TODO: Remove after test
+# Clean up branches if they already exist remotely from previous tests
+GIT_BRANCH="test-init-repo-auto-update"
+
+git fetch origin
+
+if git ls-remote --exit-code --heads origin "$GIT_BRANCH" &>/dev/null; then
+  echo $"\n🧹 Deleting existing remote branch $GIT_BRANCH (from previous test runs)..."
+  git push origin --delete "$GIT_BRANCH"
+fi
+
+if git ls-remote --exit-code --heads origin gh-pages &>/dev/null; then
+  echo $"\n🧹 Deleting existing remote branch gh-pages (from previous test runs)..."
+  git push origin --delete gh-pages
+fi
+
 # Inputs
 REPO_OWNER="$1"
 REPO_NAME="$2"
@@ -13,8 +29,6 @@ GITHUB_TOKEN="$3"
 ENV_STRING_RAW="$4"
 WEBSITE_URL="$5"
 
-# Auto-commit changes
-GIT_BRANCH="test-init-repo-auto-update"
 export GH_TOKEN="$GITHUB_TOKEN"
 
 function check_gh_cli_installed() {
@@ -161,14 +175,14 @@ function update_readme_with_storybook_url() {
 }
 
 function final_push() {
-  echo $'\n📤 Pushing to branch $GIT_BRANCH...'
+  echo -e \"\\n📤 Pushing to branch $GIT_BRANCH...\"
 
-  if ! git diff --quiet || ! git diff --cached --quiet; then
-    git remote set-url origin "https://x-access-token:${GITHUB_TOKEN}@github.com/${REPO_OWNER}/${REPO_NAME}.git"
-    git push origin "$GIT_BRANCH"
-    echo "✅ All changes pushed to branch '$GIT_BRANCH'"
+  if [[ $(git rev-list origin/$GIT_BRANCH..HEAD --count) -gt 0 ]]; then
+    git remote set-url origin \"https://x-access-token:${GITHUB_TOKEN}@github.com/${REPO_OWNER}/${REPO_NAME}.git\"
+    git push origin \"$GIT_BRANCH\"
+    echo \"✅ All changes pushed to branch '$GIT_BRANCH'\"
   else
-    echo "ℹ️ No new commits to push."
+    echo \"ℹ️ No new commits to push.\"
   fi
 }
 
