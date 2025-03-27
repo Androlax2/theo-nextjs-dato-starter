@@ -57,6 +57,7 @@
 11. Redeploy on Vercel
 12. Clone the repo on your machine
 13. Remove the `src/app/api/post-deploy/` folder and the `datocms.json` file from your repo.
+14. You can remove the **How to use** from the `README.md` (from the Summary and the section itself), It'll not be needed further.
 
 ### Local setup
 
