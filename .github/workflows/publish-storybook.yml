@@ -16,6 +16,13 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Check if gh-pages branch exists
+        run: |
+          if ! git ls-remote --exit-code origin gh-pages &>/dev/null; then
+            echo "❌ gh-pages branch does not exist. Skipping deployment."
+            exit 0
+          fi
+
       - name: Create .env.local file
         run: |
           echo "DATOCMS_PUBLISHED_CONTENT_CDA_TOKEN=${{ secrets.DATOCMS_PUBLISHED_CONTENT_CDA_TOKEN }}" >> .env.local
@@ -36,6 +43,6 @@ jobs:
       - name: Deploy Storybook to GitHub Pages
         uses: JamesIves/github-pages-deploy-action@v4
         with:
-          branch: gh-pages          # The branch the action should deploy to.
-          folder: storybook-static  # The folder where Storybook outputs the build.
+          branch: gh-pages
+          folder: storybook-static
           token: ${{ secrets.GITHUB_TOKEN }}
