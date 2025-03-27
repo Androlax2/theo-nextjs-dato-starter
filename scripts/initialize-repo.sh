@@ -145,20 +145,42 @@ function final_push() {
   echo "✅ All changes pushed to branch '$GIT_BRANCH'"
 }
 
+function extract_datocms_project_info() {
+  echo "🔍 Extracting DatoCMS project information..."
+
+  if [[ -n "$DATOCMS_CMA_TOKEN_EXTRACTED" ]]; then
+    project_info=$(curl -s \
+      -H "Authorization: Bearer $DATOCMS_CMA_TOKEN_EXTRACTED" \
+      -H "Accept: application/vnd.api+json" \
+      -H "Content-Type: application/vnd.api+json" \
+      -H "X-Api-Version: 3" \
+      https://site-api.datocms.com/site)
+
+    # Extract project name
+    PROJECT_NAME=$(echo "$project_info" | jq -r '.data.attributes.name')
+    
+    # Extract internal domain
+    INTERNAL_DOMAIN=$(echo "$project_info" | jq -r '.data.attributes.internal_domain')
+    
+    # You can add more extractions as needed
+    
+    echo "✅ Extracted project info:"
+    echo "   Project Name: $PROJECT_NAME"
+    echo "   Internal Domain: $INTERNAL_DOMAIN"
+  else
+    echo "⚠️ No DatoCMS CMA token found"
+  fi
+}
+
 function update_readme_urls() {
   echo "🌐 Updating README URLs..."
 
   if [[ -f "README.md" ]]; then
+    # Project title replacement
+    sed -i.bak "s/# \[__PROJECT_TITLE__\]/# \[${PROJECT_NAME}\]/g" README.md
+
     # DatoCMS URL replacement
     if [[ -n "$DATOCMS_CMA_TOKEN_EXTRACTED" ]]; then
-      project_info=$(curl -s \
-        -H "Authorization: Bearer $DATOCMS_CMA_TOKEN_EXTRACTED" \
-        -H "Accept: application/vnd.api+json" \
-        -H "Content-Type: application/vnd.api+json" \
-        -H "X-Api-Version: 3" \
-        https://site-api.datocms.com/site)
-
-      internal_domain=$(echo "$project_info" | jq -r '.data.attributes.internal_domain')
       if [[ "$internal_domain" != "null" ]]; then
         actual_datocms_url="https://$internal_domain"
         sed -i.bak "s|https://your-datocms-project.admin.datocms.com|$actual_datocms_url|g" README.md
@@ -205,6 +227,26 @@ function remove_init_files() {
   fi
 }
 
+function uncomment_orginal_readme() {
+  if [[ -f "README.md" ]]; then
+    # Wrap the entire content in the specific comment format
+    sed -i '1i<!-- ORIGINAL-README-START' README.md
+    echo 'ORIGINAL-README-END -->' >> README.md
+    
+    git add README.md
+  fi
+}
+
+function clean_initialization_readme() {
+  if [[ -f "README.md" ]]; then
+    # Remove the comment markers
+    sed -i 's/^<!-- ORIGINAL-README-START//g' README.md
+    sed -i 's/ORIGINAL-README-END -->$//g' README.md
+    
+    git add README.md
+  fi
+}
+
 # Run all steps
 check_gh_cli_installed
 configure_repository_settings
@@ -212,6 +254,9 @@ set_secrets
 ensure_working_branch
 ensure_gh_pages_branch
 enable_github_pages
+extract_datocms_project_info
 update_readme_urls
 remove_init_files
+clean_initialization_readme
+uncomment_orginal_readme
 final_push

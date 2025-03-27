@@ -1,28 +1,13 @@
+<!-- INIT-REPO-START -->
 # Theo NextJS Dato Starter
 
 ## Summary
 
-- [How to use](#how-to-use)
-    - [Quick start](#quick-start)
-- [Local Setup](#local-setup)
-    - [Set up environment variables](#set-up-environment-variables)
-    - [Run your project locally](#run-your-project-locally)
-- [VS Code](#vs-code)
-- [Tailwind IntelliSense](#tailwind-intellisense)
-    - [VS Code](#tailwind-intellisense-vs-code)
-    - [JetBrains](#tailwind-intellisense-jetbrains)
-- [Updating the GraphQL Schema](#updating-the-graphql-schema)
-- [Storybook](#storybook)
-  - [Local Storybook](#local-storybook)
-  - [GitHub Pages Storybook](#github-pages-storybook)
-- [Component Generation](#component-generation)
-- [Block Generation](#block-generation)
+- [Quick Start]
 
 ---
 
-### How to use
-
-#### Quick start
+# Quick Start
 
 1. Create an organization for the project in DatoCMS.
 2. Let DatoCMS set everything up for you clicking this button below:
@@ -58,6 +43,28 @@
 12. Clone the repo on your machine
 13. Remove the `src/app/api/post-deploy/` folder and the `datocms.json` file from your repo.
 14. You can remove the **How to use** from the `README.md` (from the Summary and the section itself), It'll not be needed further.
+<!-- INIT-REPO-END -->
+
+<!-- ORIGINAL-README-START
+# [__PROJECT_TITLE__]
+
+## Summary
+
+- [Local Setup](#local-setup)
+    - [Set up environment variables](#set-up-environment-variables)
+    - [Run your project locally](#run-your-project-locally)
+- [VS Code](#vs-code)
+- [Tailwind IntelliSense](#tailwind-intellisense)
+    - [VS Code](#tailwind-intellisense-vs-code)
+    - [JetBrains](#tailwind-intellisense-jetbrains)
+- [Updating the GraphQL Schema](#updating-the-graphql-schema)
+- [Storybook](#storybook)
+  - [Local Storybook](#local-storybook)
+  - [GitHub Pages Storybook](#github-pages-storybook)
+- [Component Generation](#component-generation)
+- [Block Generation](#block-generation)
+
+---
 
 ### Local setup
 
@@ -188,3 +195,4 @@ Simply modify the generated file to implement your block.
 ➡️ Let the command finish, do not stop it, it'll run `npm run generate-schema` after a block creation.
 
 **⚠️ Sometimes, there will be a little time before Typescript works again with the changes and GraphQL, If you encounter issues with that (field marked as not here but they should be there for instance). Restart your Typescript server. (Look on Google to do it for VSCode, JetBrains, ...) ⚠️**
+ORIGINAL-README-END -->
