@@ -2,4 +2,3 @@ datocms
 sitemapindex
 LHCI
 LQIP
-sicure
