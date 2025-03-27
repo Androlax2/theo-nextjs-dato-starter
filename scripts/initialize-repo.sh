@@ -42,10 +42,12 @@ declare -A expected_keys=(
   [SITE_URL]=1
 )
 
-# Normalize input string: convert spaces to newlines, remove comments
-env_lines=$(echo "$ENV_STRING_RAW" | tr ' ' '\n' | grep -E '^[A-Z_]+=.*')
-
 echo "🔐 Setting expected secrets..."
+
+DATOCMS_CMA_TOKEN_EXTRACTED=""
+
+# Normalize and parse .env string: space-separated or newline-separated
+env_lines=$(echo "$ENV_STRING_RAW" | tr ' ' '\n' | grep -E '^[A-Z_]+=.*')
 
 while IFS='=' read -r raw_key raw_value; do
   key=$(echo "$raw_key" | xargs)
@@ -60,23 +62,26 @@ while IFS='=' read -r raw_key raw_value; do
   gh secret set "$key" --body "$value" --repo "$REPO_OWNER/$REPO_NAME"
   gh secret set "$key" --body "$value" --repo "$REPO_OWNER/$REPO_NAME" --app dependabot
 
+  if [[ "$key" == "DATOCMS_CMA_TOKEN" ]]; then
+    DATOCMS_CMA_TOKEN_EXTRACTED="$value"
+  fi
 done <<< "$env_lines"
 
 echo "✅ Secrets applied."
 
-# Fetch DatoCMS admin URL
+# Fetch DatoCMS admin URL and update homepage
 echo "🌐 Querying DatoCMS for project info..."
 
 admin_url=""
-if [[ -n "${expected_keys[DATOCMS_CMA_TOKEN]}" ]]; then
-  project_info=$(curl -s -H "Authorization: Bearer $DATOCMS_CMA_TOKEN" https://site-api.datocms.com/site)
+if [[ -n "$DATOCMS_CMA_TOKEN_EXTRACTED" ]]; then
+  project_info=$(curl -s -H "Authorization: Bearer $DATOCMS_CMA_TOKEN_EXTRACTED" https://site-api.datocms.com/site)
 
-  # Try to validate it
   if echo "$project_info" | jq -e '.data.id' &>/dev/null; then
     project_id=$(echo "$project_info" | jq -r '.data.id')
     admin_url="https://dashboard.datocms.com/projects/$project_id"
     echo "📎 Found DatoCMS admin URL: $admin_url"
 
+    # Update GitHub repo homepage with DatoCMS admin URL
     gh api "repos/${REPO_OWNER}/${REPO_NAME}" \
       --method PATCH \
       --silent \
@@ -86,5 +91,5 @@ if [[ -n "${expected_keys[DATOCMS_CMA_TOKEN]}" ]]; then
     echo "$project_info" | jq
   fi
 else
-  echo "⚠️ No CMA token provided, skipping DatoCMS project lookup"
+  echo "⚠️ No DATOCMS_CMA_TOKEN found in env_file input"
 fi

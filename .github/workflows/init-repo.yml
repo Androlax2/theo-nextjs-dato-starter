@@ -13,24 +13,28 @@ on:
 jobs:
   init:
     runs-on: ubuntu-latest
-    env:
-      ACTIONS_STEP_DEBUG: false
-      ACTIONS_RUNNER_DEBUG: false
 
     steps:
-      - name: Checkout
+      - name: Create secret environment variables from inputs (safely)
+        run: |
+          ENV_FILE=$(jq -r '.inputs.env_file' "$GITHUB_EVENT_PATH")
+          WEBSITE_URL=$(jq -r '.inputs.website_url' "$GITHUB_EVENT_PATH")
+
+          # Mask full input values
+          echo "::add-mask::$ENV_FILE"
+          echo "::add-mask::$WEBSITE_URL"
+
+          # Export as environment variables for later steps
+          echo "ENV_FILE=$ENV_FILE" >> $GITHUB_ENV
+          echo "WEBSITE_URL=$WEBSITE_URL" >> $GITHUB_ENV
+
+      - name: Checkout repository
         uses: actions/checkout@v4
 
       - name: Install required CLI tools
         run: |
           sudo apt-get update
           sudo apt-get install -y jq curl
-
-      - name: Mask values from input
-        run: |
-          echo "${{ github.event.inputs.env_file }}" | tr ' ' '\n' | grep '=' | cut -d= -f2- | while read val; do
-            echo "::add-mask::$val"
-          done
 
       - name: Run initialization script
         env:
@@ -40,5 +44,5 @@ jobs:
             "${{ github.repository_owner }}" \
             "${{ github.event.repository.name }}" \
             "${{ secrets.REPO_ADMIN_PAT }}" \
-            "${{ github.event.inputs.env_file }}" \
-            "${{ github.event.inputs.website_url }}"
+            "$ENV_FILE" \
+            "$WEBSITE_URL"
