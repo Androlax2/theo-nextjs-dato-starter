@@ -17,7 +17,7 @@ on:
         required: true
       lhci_github_app_token:
         description: >
-          (Optional) The Lighthouse CI App token from https://app.lighthouse-ci.com/.
+          (Optional) The Lighthouse CI App token from https://github.com/apps/lighthouse-ci.
           Used only if you plan to integrate Lighthouse CI.
         required: false
       pat_token:

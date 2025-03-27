@@ -159,8 +159,8 @@ Enable these permissions:
 
 > 🧪 This step is **optional** — only needed if you want to enable Lighthouse CI reports in GitHub Actions.
 
-1. Visit [https://app.lighthouse-ci.com/](https://app.lighthouse-ci.com/)
-2. Log in with GitHub
+1. Visit [https://github.com/apps/lighthouse-ci](https://github.com/apps/lighthouse-ci)
+2. Click on **Configure**
 3. Choose the repo you just cloned
 4. Copy the **project token**
 
