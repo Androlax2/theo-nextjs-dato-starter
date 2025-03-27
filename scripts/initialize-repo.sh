@@ -12,7 +12,6 @@ WEBSITE_URL="$5"
 # Auto-commit changes 
 # TODO: Put main when it's done
 GIT_BRANCH="test-init-repo-auto-update"
-
 export GH_TOKEN="$GITHUB_TOKEN"
 
 if ! command -v gh &> /dev/null; then
@@ -38,7 +37,6 @@ gh api "repos/${REPO_OWNER}/${REPO_NAME}" \
 
 echo "✅ Repository configuration applied."
 
-# Declare expected secret keys
 declare -A expected_keys=(
   [DATOCMS_DRAFT_CONTENT_CDA_TOKEN]=1
   [DATOCMS_PUBLISHED_CONTENT_CDA_TOKEN]=1
@@ -47,10 +45,8 @@ declare -A expected_keys=(
 )
 
 echo "🔐 Setting expected secrets..."
-
 DATOCMS_CMA_TOKEN_EXTRACTED=""
 
-# Normalize and parse .env string: space-separated or newline-separated
 env_lines=$(echo "$ENV_STRING_RAW" | tr ' ' '\n' | grep -E '^[A-Z_]+=.*')
 
 while IFS='=' read -r raw_key raw_value; do
@@ -69,47 +65,45 @@ while IFS='=' read -r raw_key raw_value; do
   if [[ "$key" == "DATOCMS_CMA_TOKEN" ]]; then
     DATOCMS_CMA_TOKEN_EXTRACTED="$value"
   fi
+
 done <<< "$env_lines"
 
 echo "✅ Secrets applied."
 
-# Fetch DatoCMS admin URL and update homepage
 echo "🌐 Querying DatoCMS for project info..."
 
-admin_url=""
 if [[ -n "$DATOCMS_CMA_TOKEN_EXTRACTED" ]]; then
   project_info=$(curl -s \
-  -H "Authorization: Bearer $DATOCMS_CMA_TOKEN_EXTRACTED" \
-  -H "Accept: application/vnd.api+json" \
-  -H "Content-Type: application/vnd.api+json" \
-  -H "X-Api-Version: 3" \
-  https://site-api.datocms.com/site)
+    -H "Authorization: Bearer $DATOCMS_CMA_TOKEN_EXTRACTED" \
+    -H "Accept: application/vnd.api+json" \
+    -H "Content-Type: application/vnd.api+json" \
+    -H "X-Api-Version: 3" \
+    https://site-api.datocms.com/site)
 
-  # Extract DatoCMS internal domain and update README.md
   internal_domain=$(echo "$project_info" | jq -r '.data.attributes.internal_domain')
   if [[ "$internal_domain" != "null" ]]; then
-    admin_url="https://$internal_domain"
-    echo "📎 Found internal DatoCMS admin domain: $admin_url"
+    actual_url="https://$internal_domain"
+    echo "📎 Found internal DatoCMS admin domain: $actual_url"
 
-    # Replace fake DatoCMS URL in README.md
-    if [[ -f "README.md" && -n "$internal_domain" ]]; then
-      actual_url="https://$internal_domain"
+    if [[ -f "README.md" ]]; then
       echo "✏️ Replacing fake DatoCMS URL with real one: $actual_url"
-
       sed -i.bak "s|https://your-datocms-project.admin.datocms.com|$actual_url|g" README.md
       rm README.md.bak
-    else
-      echo "⚠️ README.md not found or DatoCMS domain missing — skipping link replacement."
+
+      git add README.md
+      git commit -m "docs(readme): inject DatoCMS admin URL"
     fi
   fi
 else
   echo "⚠️ No DATOCMS_CMA_TOKEN found in env_file input"
 fi
 
-# Remember current branch
+# Prepare working branch
 ORIGINAL_BRANCH=$(git rev-parse --abbrev-ref HEAD)
+git fetch origin
+git checkout -b "$GIT_BRANCH" origin/main || git checkout -b "$GIT_BRANCH"
 
-# Ensure gh-pages branch exists (even if empty)
+# Ensure gh-pages exists
 if ! git ls-remote --exit-code origin gh-pages &>/dev/null; then
   echo "🔧 Creating gh-pages branch (empty)"
 
@@ -124,8 +118,7 @@ if ! git ls-remote --exit-code origin gh-pages &>/dev/null; then
   git commit -m "chore: initialize gh-pages branch"
   git push origin gh-pages
 
-  # Return to the original branch
-  git checkout "$ORIGINAL_BRANCH"
+  git checkout "$GIT_BRANCH"
 fi
 
 echo "📘 Enabling GitHub Pages..."
@@ -144,10 +137,8 @@ enable_pages() {
 EOF
 }
 
-# Try to enable GitHub Pages, fallback if not created yet
 if ! enable_pages 2>/dev/null; then
   echo "ℹ️ GitHub Pages not enabled yet — trying to create it..."
-
   gh api "repos/${REPO_OWNER}/${REPO_NAME}/pages" \
     --method POST \
     --silent \
@@ -163,32 +154,23 @@ fi
 
 echo "✅ GitHub Pages is now configured for branch gh-pages"
 
-# === Inject Storybook URL into README ===
+# Update Storybook URL
 PAGES_URL="https://${REPO_OWNER}.github.io/${REPO_NAME}"
 
 if [[ -f "README.md" ]]; then
   echo "✏️ Replacing placeholder Storybook URL in README.md with: $PAGES_URL"
   sed -i.bak "s|https://your-storybook-url.com|$PAGES_URL|g" README.md
   rm -f README.md.bak
+
+  git add README.md
+  git commit -m "docs(readme): insert GitHub Pages Storybook link"
 fi
 
-# === Commit the changes ===
-echo "📦 Preparing to commit and push changes to branch: $GIT_BRANCH"
-
-git config --global user.name "github-actions[bot]"
-git config --global user.email "github-actions[bot]@users.noreply.github.com"
-
-git checkout -b "$GIT_BRANCH"
-
-# Check for changes in the working directory
-if [[ -n $(git status --porcelain) ]]; then
-  git add .
-  git commit -m "chore: initialize project configuration"
-
+# Final push
+if [[ -n $(git log origin/"$GIT_BRANCH"..HEAD) ]]; then
   git remote set-url origin "https://x-access-token:${GITHUB_TOKEN}@github.com/${REPO_OWNER}/${REPO_NAME}.git"
   git push origin "$GIT_BRANCH"
-
-  echo "✅ Changes pushed to branch '$GIT_BRANCH'"
+  echo "✅ All changes pushed to branch '$GIT_BRANCH'"
 else
-  echo "ℹ️ No changes to commit — skipping push."
+  echo "ℹ️ No new commits to push."
 fi
