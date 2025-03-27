@@ -74,7 +74,10 @@ echo "🌐 Querying DatoCMS for project info..."
 
 admin_url=""
 if [[ -n "$DATOCMS_CMA_TOKEN_EXTRACTED" ]]; then
-  project_info=$(curl -s -H "Authorization: Bearer $DATOCMS_CMA_TOKEN_EXTRACTED" https://site-api.datocms.com/site)
+  project_info=$(curl -s \
+  -H "Authorization: Bearer $DATOCMS_CMA_TOKEN_EXTRACTED" \
+  -H "Accept: application/vnd.api+json" \
+  https://site-api.datocms.com/site)
 
   if echo "$project_info" | jq -e '.data.id' &>/dev/null; then
     project_id=$(echo "$project_info" | jq -r '.data.id')
