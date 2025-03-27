@@ -185,8 +185,8 @@ function remove_init_files() {
   fi
 
   # Remove the init script
-  if [[ -f "scripts/init-repo.sh" ]]; then
-    git rm scripts/init-repo.sh
+  if [[ -f "scripts/initialize-repo.sh" ]]; then
+    git rm scripts/initialize-repo.sh
   fi
 
   # Remove the datocms.json file
