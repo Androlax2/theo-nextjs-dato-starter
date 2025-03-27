@@ -24,13 +24,26 @@
 
 #### Quick start
 
-1. [Create an account on DatoCMS](https://datocms.com).
-
-2. Make sure that you have set up the [Github integration on Vercel](https://vercel.com/docs/git/vercel-for-github).
-
-3. Let DatoCMS set everything up for you clicking this button below:
+1. Create an organization for the project in DatoCMS.
+2. Let DatoCMS set everything up for you clicking this button below:
 
 [![Deploy with DatoCMS](https://dashboard.datocms.com/deploy/button.svg)](https://dashboard.datocms.com/deploy?repo=Androlax2%2Ftheo-nextjs-dato-starter%3Amain)
+
+3. Wait a bit on this page, the dropdown will show all organizations after a time.
+
+<img width="1141" alt="Screenshot 2025-03-27 at 14 16 00" src="https://github.com/user-attachments/assets/5be29c39-9e2c-41e1-8a20-48df2e2d69d0" />
+
+4. Put your project name and click "Create Project"
+5. Click on "Wait, I also want a website to be linked to the project!"
+
+<img width="1056" alt="Screenshot 2025-03-27 at 14 17 12" src="https://github.com/user-attachments/assets/df09b2c9-dee3-423e-9060-8554d69502fa" />
+
+6. Select "Vercel"
+7. On this page click on "Github"
+
+<img width="1152" alt="Screenshot 2025-03-27 at 14 18 02" src="https://github.com/user-attachments/assets/c578a79d-4be1-474f-8d75-a97712fae8b7" />
+
+8. Deploy
 
 ### Local setup
 
