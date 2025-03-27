@@ -1,0 +1,22 @@
+name: Initialize Repo
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+jobs:
+  init:
+    if: github.event.created == true
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install jq
+        run: sudo apt-get update && sudo apt-get install -y jq
+
+      - name: Run initialization script
+        run: |
+          bash scripts/initialize-repo.sh ${{ github.repository_owner }} ${{ github.event.repository.name }} ${{ secrets.GITHUB_TOKEN }}
