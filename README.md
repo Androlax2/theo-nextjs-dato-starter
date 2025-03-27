@@ -153,7 +153,7 @@ This will start Storybook on [http://localhost:6006](http://localhost:6006) wher
 
 ### GitHub Pages Storybook
 
-The Storybook is also deployed to GitHub Pages. You can view it [here](https://signifly.github.io/met-web-next/).
+The Storybook is also deployed to GitHub Pages. You can view it here (ADD THE URL OF YOUR STORYBOOK GH-PAGES HERE)
 
 ## Component Generation
 
