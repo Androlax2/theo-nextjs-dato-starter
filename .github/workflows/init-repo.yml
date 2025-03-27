@@ -1,5 +1,8 @@
 name: Initialize Repo
 
+permissions:
+  contents: write
+
 on:
   workflow_dispatch:
     inputs:
