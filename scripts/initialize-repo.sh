@@ -229,9 +229,11 @@ function remove_init_files() {
 
 function uncomment_orginal_readme() {
   if [[ -f "README.md" ]]; then
-    # Wrap the entire content in the specific comment format
-    sed -i '1i<!-- ORIGINAL-README-START' README.md
-    echo 'ORIGINAL-README-END -->' >> README.md
+    # Remove the ORIGINAL-README-START marker from the beginning
+    sed -i 's/^<!-- ORIGINAL-README-START //g' README.md
+    
+    # Remove the ORIGINAL-README-END --> marker from the end
+    sed -i 's/ ORIGINAL-README-END -->$//g' README.md
     
     git add README.md
   fi
