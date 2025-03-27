@@ -18,7 +18,7 @@ GIT_BRANCH="test-init-repo-auto-update"
 export GH_TOKEN="$GITHUB_TOKEN"
 
 function check_gh_cli_installed() {
-  echo -e "\n❌ Checking GitHub CLI installation..."
+  echo $'\n❌ Checking GitHub CLI installation...'
   if ! command -v gh &> /dev/null; then
     echo "❌ GitHub CLI (gh) is not installed."
     exit 1
@@ -26,7 +26,7 @@ function check_gh_cli_installed() {
 }
 
 function configure_repository_settings() {
-  echo -e "\n⚙️ Configuring repository settings via GitHub CLI..."
+  echo $'\n⚙️ Configuring repository settings via GitHub CLI...'
   gh api "repos/${REPO_OWNER}/${REPO_NAME}" \
     --method PATCH \
     --silent \
@@ -45,7 +45,7 @@ function configure_repository_settings() {
 }
 
 function set_secrets() {
-  echo -e "\n🔐 Setting expected secrets..."
+  echo $'\n🔐 Setting expected secrets...'
 
   declare -A expected_keys=(
     [DATOCMS_DRAFT_CONTENT_CDA_TOKEN]=1
@@ -80,7 +80,7 @@ function set_secrets() {
 }
 
 function update_readme_with_datocms_url() {
-  echo -e "\n🌐 Querying DatoCMS for project info..."
+  echo $'\n🌐 Querying DatoCMS for project info...'
 
   if [[ -n "$DATOCMS_CMA_TOKEN_EXTRACTED" ]]; then
     project_info=$(curl -s \
@@ -110,14 +110,14 @@ function update_readme_with_datocms_url() {
 }
 
 function ensure_working_branch() {
-  echo -e "\n🔀 Preparing working branch..."
+  echo $'\n🔀 Preparing working branch...'
   ORIGINAL_BRANCH=$(git rev-parse --abbrev-ref HEAD)
   git fetch origin
   git checkout -b "$GIT_BRANCH" origin/main || git checkout -b "$GIT_BRANCH"
 }
 
 function ensure_gh_pages_branch() {
-  echo -e "\n🔧 Checking gh-pages branch..."
+  echo $'\n🔧 Checking gh-pages branch...'
   if ! git ls-remote --exit-code origin gh-pages &>/dev/null; then
     echo "🔧 Creating gh-pages branch (empty)"
 
@@ -134,7 +134,7 @@ function ensure_gh_pages_branch() {
 }
 
 function enable_github_pages() {
-  echo -e "\n📘 Enabling GitHub Pages..."
+  echo $'\n📘 Enabling GitHub Pages...'
   echo "⏳ Waiting briefly to ensure GitHub recognizes the new gh-pages branch..."
   sleep 5
 
@@ -147,7 +147,7 @@ function enable_github_pages() {
 }
 
 function update_readme_with_storybook_url() {
-  echo -e "\n📗 Updating README with Storybook URL..."
+  echo $'\n📗 Updating README with Storybook URL...'
   PAGES_URL="https://${REPO_OWNER}.github.io/${REPO_NAME}"
 
   if [[ -f "README.md" ]]; then
@@ -161,9 +161,9 @@ function update_readme_with_storybook_url() {
 }
 
 function final_push() {
-  echo -e "\n📤 Pushing to branch $GIT_BRANCH..."
+  echo $'\n📤 Pushing to branch $GIT_BRANCH...'
 
-  if [[ -n $(git log origin/"$GIT_BRANCH"..HEAD) ]]; then
+  if ! git diff --quiet || ! git diff --cached --quiet; then
     git remote set-url origin "https://x-access-token:${GITHUB_TOKEN}@github.com/${REPO_OWNER}/${REPO_NAME}.git"
     git push origin "$GIT_BRANCH"
     echo "✅ All changes pushed to branch '$GIT_BRANCH'"
