@@ -1,42 +1,104 @@
 <!-- INIT-REPO-START -->
-# Theo NextJS Dato Starter
+## 🚀 Quick Start Guide
 
-# Quick Start
+Follow these steps to launch your DatoCMS + Vercel + GitHub-powered project in minutes:
 
-1. Create an organization for the project in DatoCMS.
-2. Let DatoCMS set everything up for you clicking this button below:
+---
+
+### 1. 🏗️ Create a DatoCMS Organization  
+
+If you don’t have one already, [create a DatoCMS organization](https://dashboard.datocms.com) for your project.
+
+---
+
+### 2. ⚡ Deploy via DatoCMS Setup Wizard  
+
+Click the button below to launch the setup flow:
 
 [![Deploy with DatoCMS](https://dashboard.datocms.com/deploy/button.svg)](https://dashboard.datocms.com/deploy?repo=Androlax2%2Ftheo-nextjs-dato-starter%3Amain)
 
-3. Wait a bit on this page, the dropdown will show all organizations after a time.
+✅ This will:
+- Clone the GitHub repo
+- Create the DatoCMS project
+- Link it all together
 
-<img width="1141" alt="Screenshot 2025-03-27 at 14 16 00" src="https://github.com/user-attachments/assets/5be29c39-9e2c-41e1-8a20-48df2e2d69d0" />
+---
 
-4. Put your project name and click "Create Project"
-5. Click on "Wait, I also want a website to be linked to the project!"
+### 3. ⏳ Select Your Organization  
+After a few seconds, the dropdown should populate with your DatoCMS organizations:
 
-<img width="1056" alt="Screenshot 2025-03-27 at 14 17 12" src="https://github.com/user-attachments/assets/df09b2c9-dee3-423e-9060-8554d69502fa" />
+<img width="1141" alt="Organization dropdown" src="https://github.com/user-attachments/assets/5be29c39-9e2c-41e1-8a20-48df2e2d69d0" />
 
-6. Select "Vercel"
-7. On this page click on "Github"
+---
 
-<img width="1152" alt="Screenshot 2025-03-27 at 14 18 02" src="https://github.com/user-attachments/assets/c578a79d-4be1-474f-8d75-a97712fae8b7" />
+### 4. 🧱 Name and Create the Project  
+Give your new project a name, then click **Create Project**.
 
-8. Deploy
-9. Generate a secret key on your terminal with `openssl rand -hex 32`. Change the `?token=secretTokenProtectingWebhookEndpointsFromBeingCalledByAnyone` on Dato, you change `secretTokenProtectingWebhookEndpointsFromBeingCalledByAnyone` by the one you've generated :
+---
 
-- 🔄 Invalidate Next.js Cache Webhook (Project Settings > Webhooks)
-- And in the two plugins (Configuration > Plugins)
+### 5. 🌐 Link a Website  
+Click **"Wait, I also want a website to be linked to the project!"**
 
-10. Go in the settings of the Vercel project and on the environment variables, change :
+<img width="1056" alt="Link website" src="https://github.com/user-attachments/assets/df09b2c9-dee3-423e-9060-8554d69502fa" />
 
-- `SECRET_API_TOKEN` by the one you've generated.
-- Add a `SITE_URL` environment variable with the Vercel domain it's deployed to. (https://example.com without trailing slash and with the protocol before the domain)
+---
 
-11. Redeploy on Vercel
-12. Clone the repo on your machine
-13. Remove the `src/app/api/post-deploy/` folder and the `datocms.json` file from your repo.
-14. You can remove the **How to use** from the `README.md` (from the Summary and the section itself), It'll not be needed further.
+### 6. ☁️ Choose Vercel  
+Select **Vercel** as your deployment target.
+
+---
+
+### 7. 🔗 Connect GitHub  
+On the next screen, choose **GitHub** as your Git provider:
+
+<img width="1152" alt="Connect GitHub" src="https://github.com/user-attachments/assets/c578a79d-4be1-474f-8d75-a97712fae8b7" />
+
+---
+
+### 8. 🚀 Deploy the Project  
+Once connected, deploy your new project to Vercel.
+
+---
+
+### 9. 🔐 Set the Webhook Secret  
+
+Generate a secure token:
+
+```bash
+openssl rand -hex 32
+```
+
+Copy the result and replace `secretTokenProtectingWebhookEndpointsFromBeingCalledByAnyone` in:
+
+- ✅ **Project Settings → Webhooks** (Invalidate Next.js Cache)
+- ✅ **Configuration → Plugins** (2 plugin configs)
+
+---
+
+### 10. 🔧 Configure Vercel Environment Variables  
+
+Set the following in your Vercel project settings:
+
+| Key               | Value                                 |
+|------------------|---------------------------------------|
+| `SECRET_API_TOKEN` | The token you generated above         |
+| `SITE_URL`         | Your deployed domain (e.g. `https://example.com`) |
+
+> ⚠️ Do not include a trailing slash in `SITE_URL`.
+
+---
+
+### 11. 🔄 Redeploy the Project  
+
+After setting env vars, trigger a new deployment on Vercel.
+
+---
+
+### 12. 💻 Clone the Repo Locally 
+
+CONTENT HERE
+
+---
 <!-- INIT-REPO-END -->
 
 <!-- ORIGINAL-README-START
