@@ -149,7 +149,7 @@ Paste your secret token into Vercel like this:
 
 ```bash
 vercel env rm SECRET_API_TOKEN --yes
-echo "your-secret-token-here" | vercel env add SECRET_API_TOKEN
+echo "your-secret-token-here" | vercel env add SECRET_API_TOKEN production
 ```
 
 > ⚠️ Replace "your-secret-token-here" with the actual token you generated earlier.
