@@ -151,6 +151,8 @@ Paste your secret token into Vercel like this:
 echo "your-secret-token-here" | vercel env add SECRET_API_TOKEN production
 ```
 
+> ⚠️ Replace "your-secret-token-here" with the actual token you generated earlier.
+
 ---
 
 Now your production environment will have both `SITE_URL` and `SECRET_API_TOKEN` correctly set!
