@@ -45,7 +45,7 @@ echo ""
 echo "📁 Enter your DatoCMS CMA token (DATOCMS_CMA_TOKEN):"
 echo "---------------------------------------------------"
 echo "You can find it in your DatoCMS project:"
-echo "Go to → Project Settings → API tokens → 'CMA Only (Admin)'"
+echo "Go to → Settings → API tokens → 'CMA token (Content Management API)'"
 echo ""
 read -rsp "🔐 Paste DATOCMS_CMA_TOKEN here: " DATOCMS_CMA_TOKEN
 echo ""
@@ -144,4 +144,19 @@ else
 fi
 
 echo ""
-echo "🚀 Rede
+echo "🚀 Redeploying the project (production)..."
+vercel --prod --yes
+
+echo ""
+echo "🧹 Cleaning up init script..."
+rm -- "$0"
+
+echo ""
+echo "📤 Committing any remaining changes..."
+git add .
+git commit -m "Finalize project setup" || echo "⚠️ Nothing to commit."
+git push
+
+echo ""
+echo "🎉 Setup complete and script removed!"
+echo "Your project is deployed and fully configured."
