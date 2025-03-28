@@ -94,8 +94,6 @@ function set_secrets() {
   if [[ -n "${LHCI_GITHUB_APP_TOKEN}" ]]; then
     # Trim whitespace (in case the input is just spaces)
     trimmed_token="$(echo "$LHCI_GITHUB_APP_TOKEN" | tr -d '[:space:]')"
-
-    echo "LHCI_GITHUB_APP_TOKEN raw value: >>>${LHCI_GITHUB_APP_TOKEN}<<<"
     
     if [[ -z "$trimmed_token" ]]; then
       echo "ℹ️ LHCI_GITHUB_APP_TOKEN is empty or only whitespace. Skipping."
