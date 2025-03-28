@@ -68,7 +68,7 @@ fi
 
 echo ""
 echo "🚀 Redeploying the project (production)..."
-vercel --prod --yes --no-clipboard
+vercel --prod --yes
 
 echo ""
 echo "🧹 Cleaning up init script..."
