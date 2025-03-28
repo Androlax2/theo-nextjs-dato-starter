@@ -69,10 +69,10 @@ Once the setup wizard finishes, it will have created a new GitHub repository und
 
 Clone it locally:
 
-<!-- code block -->
+``bash
 git clone https://github.com/YOUR_USERNAME/YOUR_REPO_NAME.git
 cd YOUR_REPO_NAME
-<!-- code block -->
+```
 
 > Replace `YOUR_USERNAME/YOUR_REPO_NAME` with the actual path to your newly created GitHub repo.
 
