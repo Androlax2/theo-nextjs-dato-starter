@@ -95,26 +95,15 @@ Copy the result and replace `secretTokenProtectingWebhookEndpointsFromBeingCalle
 
 ---
 
-### 11. 🔧 Configure Vercel Environment Variables  
+### 11. 🔧 Final Setup: Configure Vercel Environment Variables & Redeploy  
 
-## 📝 Manually
-
-Set the following in your Vercel project settings:
-
-| Key               | Value                                 |
-|------------------|---------------------------------------|
-| `SECRET_API_TOKEN` | The token you generated above         |
-| `SITE_URL`         | Your deployed domain (e.g. `https://example.com`) |
-
-> ⚠️ Do not include a trailing slash in `SITE_URL`.
+We’ve bundled everything — setting environment variables, restoring GitHub Actions, and redeploying — into a single script:
 
 ---
 
-## 🔁 Automatically (with Vercel CLI)
+### 🪄 One-liner setup
 
-You can also configure your environment variables from the command line:
-
-### 1. 🛠 Install the Vercel CLI
+#### 1. 🛠 Install the Vercel CLI (if not already installed)
 
 ```bash
 npm i -g vercel
@@ -130,62 +119,41 @@ yarn global add vercel
 
 ---
 
-### 2. 🔗 Link Your Project
+#### 2. ▶️ Run the init script
 
-If your project isn’t already linked to Vercel:
-
-```bash
-vercel link
-```
-
-This will prompt you to select your team, project, and confirm the setup.
-
----
-
-### 3. 🌐 Set `SITE_URL` Automatically
-
-Fetch the latest production deployment and use it to set `SITE_URL`:
+From the root of your cloned repo:
 
 ```bash
-DEPLOYMENT_URL=$(vercel ls --prod | grep -m1 -Eo 'https://[a-z0-9\-]+\.vercel\.app')
-
-PROJECT_NAME=$(echo "$DEPLOYMENT_URL" | sed -E 's|https://([a-z0-9\-]+)-[a-z0-9]+-[a-z0-9]+\.vercel\.app|\1|')
-[ -z "$PROJECT_NAME" ] && PROJECT_NAME=$(basename "$DEPLOYMENT_URL" | cut -d. -f1)
-
-SITE_URL="https://${PROJECT_NAME}.vercel.app"
-echo "Detected domain: $SITE_URL"
-
-echo "$SITE_URL" | vercel env add SITE_URL production
+./scripts/init-project.sh
 ```
 
----
+This will:
 
-### 4. 🔐 Add Your Secret API Token
-
-Paste your secret token into Vercel like this:
-
-```bash
-vercel env rm SECRET_API_TOKEN --yes
-echo "your-secret-token-here" | vercel env add SECRET_API_TOKEN production
-```
-
-> ⚠️ Replace "your-secret-token-here" with the actual token you generated earlier.
+- Prompt you for the secure token you generated in step 10
+- Set the `SITE_URL` environment variable based on your latest production deployment
+- Add the `SECRET_API_TOKEN` to all environments
+- Restore `.github/workflows/`
+- Trigger a new Vercel production deployment
+- 🧹 Delete itself after running
 
 ---
 
-Now your production environment will have both `SITE_URL` and `SECRET_API_TOKEN` correctly set!
+### 📝 Prefer Manual Setup?
+
+You can still configure things manually:
+
+#### 1. Set environment variables via Vercel UI:
+
+| Key               | Value                                 |
+|------------------|---------------------------------------|
+| `SECRET_API_TOKEN` | The token you generated above         |
+| `SITE_URL`         | Your deployed domain (e.g. `https://example.com`) |
+
+> ⚠️ Do not include a trailing slash in `SITE_URL`.
 
 ---
 
-### 12. 🔄 Redeploy the Project  
-
-After setting env vars, trigger a new deployment on Vercel.
-
----
-
-### 13. 💻 Restore GitHub Actions Workflows
-
-Run the following commands to restore the GitHub Actions workflows:
+#### 2. Restore GitHub Actions manually:
 
 ```bash
 mv .github/_workflows .github/workflows
@@ -194,10 +162,17 @@ git commit -m "Restore GitHub Actions workflows"
 git push
 ```
 
-> This ensures that the workflows are correctly committed to your repository.  
-> For some reason, Vercel removes the `./github/workflows/` folder when cloning.
+---
 
-Once that’s done, you're all set! The `README.md` will automatically update to show you the next steps.
+#### 3. Redeploy manually:
+
+```bash
+vercel --prod
+```
+
+---
+
+Once complete, your project is fully configured and deployed!
 
 ---
 <!-- INIT-REPO-END -->
