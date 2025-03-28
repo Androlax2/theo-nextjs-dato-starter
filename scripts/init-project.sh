@@ -218,5 +218,5 @@ echo "⏳ This might take a few seconds... please wait until deployment is compl
 vercel --prod --yes
 
 echo ""
-echo "🎉 Setup complete and script removed!"
+echo "🎉 Setup complete !"
 echo "Your project is deployed and fully configured."
