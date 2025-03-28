@@ -1,5 +1,5 @@
 {
-  "name": "met-web-next",
+  "name": "theo-nextjs-dato-starter",
   "version": "0.1.0",
   "private": true,
   "browserslist": [
@@ -17,7 +17,7 @@
     "lint": "npx @biomejs/biome lint --write .",
     "generate-schema": "dotenv -c -- bash -c 'gql.tada generate schema https://graphql.datocms.com --header \"X-Exclude-Invalid: true\" --header \"Authorization: $DATOCMS_PUBLISHED_CONTENT_CDA_TOKEN\"'",
     "format": "npx @biomejs/biome format --write .",
-    "prepare": "npm run generate-schema && cspell link add @cspell/dict-fr-fr && node jest/generateFragmentMocks.js",
+    "prepare": "npm run generate-schema || true && node jest/generateFragmentMocks.js || true",
     "lhci:mobile": "lhci autorun --config=lighthouse-config/mobile.js",
     "lhci:desktop": "lhci autorun --config=lighthouse-config/desktop.js",
     "postbuild": "cross-env NODE_OPTIONS='--import tsx' next-sitemap --config next-sitemap.config.ts",
