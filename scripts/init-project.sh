@@ -42,23 +42,15 @@ echo "📦 Setting Vercel environment variables..."
 
 # Remove SITE_URL if exists
 vercel env rm SITE_URL --yes --environment production || true
-vercel env rm SITE_URL --yes --environment preview || true
-vercel env rm SITE_URL --yes --environment development || true
 
 # Add SITE_URL
 echo "$SITE_URL" | vercel env add SITE_URL production
-echo "$SITE_URL" | vercel env add SITE_URL preview
-echo "$SITE_URL" | vercel env add SITE_URL development
 
 # Remove SECRET_API_TOKEN if exists
 vercel env rm SECRET_API_TOKEN --yes --environment production || true
-vercel env rm SECRET_API_TOKEN --yes --environment preview || true
-vercel env rm SECRET_API_TOKEN --yes --environment development || true
 
 # Add SECRET_API_TOKEN
 echo "$SECRET_TOKEN" | vercel env add SECRET_API_TOKEN production
-echo "$SECRET_TOKEN" | vercel env add SECRET_API_TOKEN preview
-echo "$SECRET_TOKEN" | vercel env add SECRET_API_TOKEN development
 
 echo ""
 echo "🔁 Restoring GitHub Actions workflows (if needed)..."
