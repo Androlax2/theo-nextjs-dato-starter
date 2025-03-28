@@ -86,6 +86,8 @@ Generate a secure token:
 openssl rand -hex 32
 ```
 
+> 📋 **Copy and save this token somewhere safe** — you'll need it again in the next steps!
+
 Copy the result and replace `secretTokenProtectingWebhookEndpointsFromBeingCalledByAnyone` in:
 
 - ✅ **Project Settings → Webhooks** (Invalidate Next.js Cache)
