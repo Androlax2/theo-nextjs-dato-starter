@@ -102,8 +102,21 @@ function set_secrets() {
 function ensure_working_branch() {
   echo "🔀 Preparing working branch..."
   ORIGINAL_BRANCH=$(git rev-parse --abbrev-ref HEAD)
+
   git fetch origin
-  git checkout -b "$GIT_BRANCH" origin/main || git checkout -b "$GIT_BRANCH"
+
+  # If we're already on main, do nothing
+  if [[ "$ORIGINAL_BRANCH" == "main" ]]; then
+    echo "✅ Already on main branch"
+    return
+  fi
+
+  # Try to check out main from origin, or create it if needed
+  if git rev-parse --verify main &> /dev/null; then
+    git checkout main
+  else
+    git checkout -b main origin/main || git checkout -b main
+  fi
 }
 
 function ensure_gh_pages_branch() {
