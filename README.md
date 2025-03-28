@@ -76,6 +76,9 @@ cd YOUR_REPO_NAME
 
 > Replace `YOUR_USERNAME/YOUR_REPO_NAME` with the actual path to your newly created GitHub repo.
 
+> ✅ Now that your project is ready, you can close this tab and open the **README in your newly cloned repository**.  
+> Continue directly from **step 10** — the instructions pick up right there.
+
 ---
 
 ### 10. 🔐 Set the Webhook Secret  
