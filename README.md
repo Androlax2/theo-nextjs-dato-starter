@@ -411,8 +411,7 @@ Manually open `README.md` and:
 
 - Delete everything between:
   &lt;!-- INIT-REPO-START --&gt; and &lt;!-- INIT-REPO-END --&gt;
-- Delete everything between:
-  &lt;!-- REPO-CLONED-START --&gt; and &lt;!-- REPO-CLONED-END --&gt;
+- Delete everything before &lt;!-- ORIGINAL-README-START
 - Remove the two lines used to comment out the original README:
   - &lt;!-- ORIGINAL-README-START
   - ORIGINAL-README-END --&gt;
