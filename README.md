@@ -281,19 +281,108 @@ Once it’s done, you’re ready to work with the repo as usual! ✅
 
 ### 🛟 5. If Initialization Fails...
 
-No worries — you can still access the full documentation manually.
-
-Open `README.md` and look for:
-
-```html
-<!-- ORIGINAL-README-START  
-...
-ORIGINAL-README-END --\>
-```
-
-Delete those two comment lines to reveal the full project documentation.
+If the automatic GitHub Action fails to initialize the repository, you can complete the setup manually using the GitHub web interface and local Git.
 
 ---
+
+### 1. Add Repository Secrets in GitHub
+
+1. Go to your GitHub repository.
+2. Navigate to **Settings → Secrets and variables → Actions**.
+3. Click **“New repository secret”** and add the following:
+
+| Name                             | Value |
+|----------------------------------|--------|
+| DATOCMS_PUBLISHED_CONTENT_CDA_TOKEN | From DatoCMS |
+| DATOCMS_DRAFT_CONTENT_CDA_TOKEN     | From DatoCMS |
+| DATOCMS_CMA_TOKEN                   | From DatoCMS |
+| SECRET_API_TOKEN                    | A secure token you define |
+| SITE_URL                            | e.g. https://your-site.vercel.app |
+| LHCI_GITHUB_APP_TOKEN *(optional)*  | From [Lighthouse CI GitHub App](https://github.com/apps/lighthouse-ci) |
+
+Repeat the process under **Settings → Secrets and variables → Dependabot**.
+
+---
+
+### 2. Enable GitHub Pages (using GitHub UI only)
+
+1. Go to your repository’s **Code** tab.
+2. Click the branch selector (top-left, usually says `main`).
+3. Type `gh-pages` and click **"Create branch: gh-pages from 'main'"**.
+4. Go to **Settings → Pages**.
+5. Under **Pages**, set:
+   - **Source**: `Deploy from a branch`
+   - **Branch**: `gh-pages`
+   - **Folder**: `/ (root)`
+6. Click **Save**.
+
+---
+
+### 3. Configure Repository Settings
+
+Go to your repository’s **Code** tab.
+
+- On the right, on **About**: Set the Website to your deployed site (e.g. `https://your-site.vercel.app`)
+
+Go to your repository’s **Settings → General → Features** tab.
+
+- Disable **Projects**
+- Disable **Wiki**
+
+Then go to **Settings → General → Pull Requests** and configure:
+
+- Disable **Allow merge commits**
+- Disable **Allow rebase merging**
+- Enable **Allow squash merging**
+  - **Default commit message**: Pull request title and description
+- Enable **Automatically delete head branches**
+
+---
+
+### 4. Clean Up Initialization Files Locally
+
+Once everything is working, remove the setup-related files locally and push the changes:
+
+```bash
+git rm -r \
+  .github/workflows/init-repo.yml \
+  .github/workflows/reveal-clone-repo-readme.yml \
+  scripts/initialize-repo.sh \
+  scripts/init-project.sh \
+  datocms.json \
+  src/app/api/post-deploy
+
+git commit -m "chore: remove repository initialization files"
+git push
+```
+
+---
+
+### 5. Clean Up the README
+
+Manually open `README.md` and:
+
+- Delete everything between:
+  &lt;!-- INIT-REPO-START --&gt; and &lt;!-- INIT-REPO-END --&gt;
+- Delete everything between:
+  &lt;!-- REPO-CLONED-START --&gt; and &lt;!-- REPO-CLONED-END --&gt;
+- Remove the two lines used to comment out the original README:
+  - &lt;!-- ORIGINAL-README-START
+  - ORIGINAL-README-END --&gt;
+- Save and commit the file:
+- Replace **[__PROJECT_TITLE__]** by your project title
+- Replace **https://your-datocms-project.admin.datocms.com** by your DatoCMS project admin dashboard URL
+- Replace **https://your-storybook-url.com** by your Github Pages URL, you can find it under **Settings → Pages**
+
+```bash
+git add README.md
+git commit -m "docs: clean up readme after manual setup"
+git push
+```
+
+---
+
+Once complete, your repository is fully configured and ready for development.
 REPO-CLONED-END -->
 
 <!-- ORIGINAL-README-START
