@@ -369,7 +369,6 @@ Manually open `README.md` and:
 - Remove the two lines used to comment out the original README:
   - &lt;!-- ORIGINAL-README-START
   - ORIGINAL-README-END --&gt;
-- Save and commit the file:
 - Replace **[__PROJECT_TITLE__]** by your project title
 - Replace **https://your-datocms-project.admin.datocms.com** by your DatoCMS project admin dashboard URL
 - Replace **https://your-storybook-url.com** by your Github Pages URL, you can find it under **Settings → Pages**
