@@ -56,28 +56,29 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y jq curl
 
-      - name: Run initialization script
+      - name: Run initialization script (with LHCI token)
+        if: ${{ github.event.inputs.lhci_github_app_token != '' }}
         env:
           GH_TOKEN: ${{ env.PAT_TOKEN }}
-          LHCI_GITHUB_APP_TOKEN: ${{ env.LHCI_GITHUB_APP_TOKEN }}
         run: |
-          echo "🔍 LHCI_GITHUB_APP_TOKEN value: >>>${LHCI_GITHUB_APP_TOKEN}<<<"
+          echo "✅ LHCI_GITHUB_APP_TOKEN is present."
+          bash scripts/initialize-repo.sh \
+            "${{ github.repository_owner }}" \
+            "${{ github.event.repository.name }}" \
+            "${{ env.PAT_TOKEN }}" \
+            "$ENV_FILE" \
+            "$WEBSITE_URL" \
+            "$LHCI_GITHUB_APP_TOKEN"
 
-          if [[ -n "$(echo "$LHCI_GITHUB_APP_TOKEN" | tr -d '[:space:]')" ]]; then
-            echo "✅ LHCI_GITHUB_APP_TOKEN is present. Passing to init script."
-            bash scripts/initialize-repo.sh \
-              "${{ github.repository_owner }}" \
-              "${{ github.event.repository.name }}" \
-              "${{ env.PAT_TOKEN }}" \
-              "$ENV_FILE" \
-              "$WEBSITE_URL" \
-              "$LHCI_GITHUB_APP_TOKEN"
-          else
-            echo "ℹ️ LHCI_GITHUB_APP_TOKEN not set or empty. Skipping."
-            bash scripts/initialize-repo.sh \
-              "${{ github.repository_owner }}" \
-              "${{ github.event.repository.name }}" \
-              "${{ env.PAT_TOKEN }}" \
-              "$ENV_FILE" \
-              "$WEBSITE_URL"
-          fi
+      - name: Run initialization script (without LHCI token)
+        if: ${{ github.event.inputs.lhci_github_app_token == '' }}
+        env:
+          GH_TOKEN: ${{ env.PAT_TOKEN }}
+        run: |
+          echo "ℹ️ LHCI_GITHUB_APP_TOKEN not provided. Skipping it."
+          bash scripts/initialize-repo.sh \
+            "${{ github.repository_owner }}" \
+            "${{ github.event.repository.name }}" \
+            "${{ env.PAT_TOKEN }}" \
+            "$ENV_FILE" \
+            "$WEBSITE_URL"
