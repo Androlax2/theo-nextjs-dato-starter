@@ -49,7 +49,7 @@ echo "📡 Retrieving DATOCMS_CMA_TOKEN from Vercel..."
 DATOCMS_CMA_TOKEN=$(vercel env ls | grep DATOCMS_CMA_TOKEN | awk '{print $4}')
 
 if [ -z "$DATOCMS_CMA_TOKEN" ]; then
-  echo "❌ DATOCMS_CMA_TOKEN not found in Vercel environment. Skipping DatoCMS webhook update."
+  echo "❌ DATOCMS_CMA_TOKEN not found in Vercel environment. Skipping DatoCMS updates."
 else
   echo "✅ Found DATOCMS_CMA_TOKEN"
 
@@ -90,6 +90,56 @@ else
       echo "$WEBHOOK_UPDATE_RESPONSE"
     else
       echo "✅ DatoCMS webhook successfully updated."
+    fi
+  fi
+
+  echo ""
+  echo "🔄 Updating DatoCMS web-previews plugin with secret token..."
+
+  PLUGIN_UPDATE_URL="${SITE_URL}/api/preview-links?token=${SECRET_TOKEN}"
+
+  PLUGIN_LIST=$(curl -s -X GET "https://site-api.datocms.com/plugins" \
+    -H "Authorization: Bearer ${DATOCMS_CMA_TOKEN}" \
+    -H "Accept: application/json" \
+    -H "X-Api-Version: 3")
+
+  PLUGIN_ID=$(echo "$PLUGIN_LIST" | jq -r '.data[] | select(.attributes.package_name == "datocms-plugin-web-previews") | .id')
+
+  if [ -z "$PLUGIN_ID" ]; then
+    echo "❌ Could not find plugin 'datocms-plugin-web-previews'."
+    echo "$PLUGIN_LIST"
+  else
+    echo "✅ Found plugin ID: $PLUGIN_ID"
+    echo "➡️ Updating previewWebhook URL to: $PLUGIN_UPDATE_URL"
+
+    PLUGIN_PATCH_RESPONSE=$(curl -s -X PATCH "https://site-api.datocms.com/plugins/${PLUGIN_ID}" \
+      -H "Authorization: Bearer ${DATOCMS_CMA_TOKEN}" \
+      -H "Accept: application/json" \
+      -H "Content-Type: application/json" \
+      -H "X-Api-Version: 3" \
+      -d "{
+        \"data\": {
+          \"id\": \"${PLUGIN_ID}\",
+          \"type\": \"plugin\",
+          \"attributes\": {
+            \"parameters\": {
+              \"frontends\": [
+                {
+                  \"name\": \"Production\",
+                  \"previewWebhook\": \"${PLUGIN_UPDATE_URL}\"
+                }
+              ],
+              \"startOpen\": true
+            }
+          }
+        }
+      }")
+
+    if echo "$PLUGIN_PATCH_RESPONSE" | grep -q '"type":"api_error"'; then
+      echo "❌ Failed to update plugin:"
+      echo "$PLUGIN_PATCH_RESPONSE"
+    else
+      echo "✅ Plugin successfully updated!"
     fi
   fi
 fi
