@@ -1,6 +1,6 @@
-import { type Client, buildClient } from '@datocms/cma-client';
-import type { NextRequest, NextResponse } from 'next/server';
-import { handleUnexpectedError, successfulResponse, withCORS } from '../utils';
+import { type Client, buildClient } from "@datocms/cma-client";
+import type { NextRequest, NextResponse } from "next/server";
+import { handleUnexpectedError, successfulResponse, withCORS } from "../utils";
 
 /*
  * This endpoint is called only once, immediately after the initial deployment of
@@ -8,7 +8,7 @@ import { handleUnexpectedError, successfulResponse, withCORS } from '../utils';
  */
 
 export async function OPTIONS() {
-  return new Response('OK', withCORS());
+  return new Response("OK", withCORS());
 }
 
 /**
@@ -18,14 +18,14 @@ export async function OPTIONS() {
  */
 async function installWebPreviewsPlugin(client: Client, baseUrl: string) {
   const webPreviewsPlugin = await client.plugins.create({
-    package_name: 'datocms-plugin-web-previews',
+    package_name: "datocms-plugin-web-previews",
   });
 
   await client.plugins.update(webPreviewsPlugin, {
     parameters: {
       frontends: [
         {
-          name: 'Production',
+          name: "Production",
           previewWebhook: new URL(
             `/api/preview-links?token=${process.env.SECRET_API_TOKEN}`,
             baseUrl,
@@ -38,13 +38,42 @@ async function installWebPreviewsPlugin(client: Client, baseUrl: string) {
 }
 
 /**
+ * Configure the "Slug With Collections" plugin in DatoCMS
+ *
+ * This sets the required Read API token parameter for the plugin to work.
+ * Plugin: https://www.datocms.com/marketplace/plugins/i/datocms-plugin-slug-with-collections
+ */
+async function configureSlugPluginWithReadToken(client: Client) {
+  const plugins = await client.plugins.list();
+  const slugPlugin = plugins.find(
+    ({ package_name }) =>
+      package_name === "datocms-plugin-slug-with-collections",
+  );
+
+  if (!slugPlugin) return;
+
+  const accessTokens = await client.accessTokens.list();
+  const readAPIToken = accessTokens.find(
+    ({ hardcoded_type }) => hardcoded_type === "readonly",
+  );
+
+  if (!readAPIToken) return;
+
+  await client.plugins.update(slugPlugin.id, {
+    parameters: {
+      readAPIToken: readAPIToken.token,
+    },
+  });
+}
+
+/**
  * Install and configure the "SEO/Readability Analysis" plugin
  *
  * https://www.datocms.com/marketplace/plugins/i/datocms-plugin-seo-readability-analysis
  */
 async function installSEOAnalysisPlugin(client: Client, baseUrl: string) {
   const seoPlugin = await client.plugins.create({
-    package_name: 'datocms-plugin-seo-readability-analysis',
+    package_name: "datocms-plugin-seo-readability-analysis",
   });
 
   await client.plugins.update(seoPlugin.id, {
@@ -53,7 +82,7 @@ async function installSEOAnalysisPlugin(client: Client, baseUrl: string) {
         `/api/seo-analysis?token=${process.env.SECRET_API_TOKEN}`,
         baseUrl,
       ).toString(),
-      autoApplyToFieldsWithApiKey: 'seo_analysis',
+      autoApplyToFieldsWithApiKey: "seo_analysis",
       setSeoReadabilityAnalysisFieldExtensionId: true,
     },
   });
@@ -64,15 +93,18 @@ async function installSEOAnalysisPlugin(client: Client, baseUrl: string) {
  */
 async function createCacheInvalidationWebhook(client: Client, baseUrl: string) {
   await client.webhooks.create({
-    name: '🔄 Invalidate Next.js Cache',
-    url: new URL(`/api/invalidate-cache?token=${process.env.SECRET_API_TOKEN}`, baseUrl).toString(),
+    name: "🔄 Invalidate Next.js Cache",
+    url: new URL(
+      `/api/invalidate-cache?token=${process.env.SECRET_API_TOKEN}`,
+      baseUrl,
+    ).toString(),
     custom_payload: null,
     headers: {},
     events: [
       {
         filters: [],
-        entity_type: 'cda_cache_tags',
-        event_types: ['invalidate'],
+        entity_type: "cda_cache_tags",
+        event_types: ["invalidate"],
       },
     ],
     http_basic_user: null,
@@ -91,6 +123,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       installWebPreviewsPlugin(client, baseUrl),
       createCacheInvalidationWebhook(client, baseUrl),
       installSEOAnalysisPlugin(client, baseUrl),
+      configureSlugPluginWithReadToken(client),
     ]);
 
     return successfulResponse();
