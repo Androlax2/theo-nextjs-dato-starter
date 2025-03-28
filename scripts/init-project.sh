@@ -80,7 +80,18 @@ else
     -H "Accept: application/json" \
     -H "Content-Type: application/json" \
     -H "X-Api-Version: 3" \
-    -d "{\n      \"data\": {\n        \"id\": \"${WEBHOOK_ID}\",\n        \"type\": \"webhook\",\n        \"attributes\": {\n          \"url\": \"${WEBHOOK_URL}\"\n        }\n      }\n    }")
+    -d @- <<EOF > /dev/null
+{
+  "data": {
+    "id": "${WEBHOOK_ID}",
+    "type": "webhook",
+    "attributes": {
+      "url": "${WEBHOOK_URL}"
+    }
+  }
+}
+EOF
+  )
 
   if echo "$WEBHOOK_UPDATE_RESPONSE" | grep -q '"type":"api_error"'; then
     echo "❌ Failed to update DatoCMS webhook:"
@@ -104,9 +115,40 @@ else
     -H "Accept: application/json" \
     -H "Content-Type: application/json" \
     -H "X-Api-Version: 3" \
-    -d "{\n      \"data\": {\n        \"id\": \"${WEB_PREV_PLUGIN_ID}\",\n        \"type\": \"plugin\",\n        \"attributes\": {\n          \"parameters\": {\n            \"frontends\": [{\n              \"name\": \"Production\",\n              \"previewWebhook\": \"${PREVIEW_URL}\"\n            }],\n            \"startOpen\": true\n          }\n        }\n      }\n    }" > /dev/null
+    -d @- <<EOF > /dev/null
+{
+  "data": {
+    "id": "${WEB_PREV_PLUGIN_ID}",
+    "type": "plugin",
+    "attributes": {
+      "parameters": {
+        "frontends": [
+          {
+            "name": "Production",
+            "previewWebhook": "${PREVIEW_URL}"
+          }
+        ],
+        "startOpen": true
+      }
+    }
+  }
+}
+EOF
 
-  echo "✅ web-previews plugin updated."
+  UPDATED_PLUGIN=$(curl -s -X GET "https://site-api.datocms.com/plugins/${WEB_PREV_PLUGIN_ID}" \
+    -H "Authorization: Bearer ${DATOCMS_CMA_TOKEN}" \
+    -H "Accept: application/json" \
+    -H "X-Api-Version: 3")
+
+  CURRENT_WEBHOOK=$(echo "$UPDATED_PLUGIN" | jq -r '.data.attributes.parameters.frontends[0].previewWebhook')
+
+  if [[ "$CURRENT_WEBHOOK" == "$PREVIEW_URL" ]]; then
+    echo "✅ web-previews plugin updated."
+  else
+    echo "❌ Failed to confirm web-previews plugin update."
+    echo "Expected: $PREVIEW_URL"
+    echo "Actual:   $CURRENT_WEBHOOK"
+  fi
 fi
 
 echo ""
@@ -123,40 +165,34 @@ else
     -H "Accept: application/json" \
     -H "Content-Type: application/json" \
     -H "X-Api-Version: 3" \
-    -d "{\n      \"data\": {\n        \"id\": \"${SEO_PLUGIN_ID}\",\n        \"type\": \"plugin\",\n        \"attributes\": {\n          \"parameters\": {\n            \"htmlGeneratorUrl\": \"${SEO_URL}\",\n            \"autoApplyToFieldsWithApiKey\": \"seo_analysis\",\n            \"setSeoReadabilityAnalysisFieldExtensionId\": true\n          }\n        }\n      }\n    }" > /dev/null
+    -d @- <<EOF > /dev/null
+{
+  "data": {
+    "id": "${SEO_PLUGIN_ID}",
+    "type": "plugin",
+    "attributes": {
+      "parameters": {
+        "htmlGeneratorUrl": "${SEO_URL}",
+        "autoApplyToFieldsWithApiKey": "seo_analysis",
+        "setSeoReadabilityAnalysisFieldExtensionId": true
+      }
+    }
+  }
+}
+EOF
 
-  echo "✅ SEO Analysis plugin updated."
+  UPDATED_SEO_PLUGIN=$(curl -s -X GET "https://site-api.datocms.com/plugins/${SEO_PLUGIN_ID}" \
+    -H "Authorization: Bearer ${DATOCMS_CMA_TOKEN}" \
+    -H "Accept: application/json" \
+    -H "X-Api-Version: 3")
+
+  CURRENT_SEO_URL=$(echo "$UPDATED_SEO_PLUGIN" | jq -r '.data.attributes.parameters.htmlGeneratorUrl')
+
+  if [[ "$CURRENT_SEO_URL" == "$SEO_URL" ]]; then
+    echo "✅ SEO Analysis plugin updated."
+  else
+    echo "❌ Failed to confirm SEO Analysis plugin update."
+    echo "Expected: $SEO_URL"
+    echo "Actual:   $CURRENT_SEO_URL"
+  fi
 fi
-
-echo ""
-echo "🔁 Restoring GitHub Actions workflows (if needed)..."
-
-if [ -d ".github/_workflows" ]; then
-  mv .github/_workflows .github/workflows
-  rm -rf .github/_workflows
-  git add .github/workflows
-  git add .github/_workflows
-  git commit -m "Restore GitHub Actions workflows"
-  git push
-  echo "✅ Workflows restored and pushed to the repo."
-else
-  echo "⚠️  .github/_workflows not found. Skipping workflow restore."
-fi
-
-echo ""
-echo "🚀 Redeploying the project (production)..."
-vercel --prod --yes
-
-echo ""
-echo "🧹 Cleaning up init script..."
-rm -- "$0"
-
-echo ""
-echo "📤 Committing any remaining changes..."
-git add .
-git commit -m "Finalize project setup" || echo "⚠️ Nothing to commit."
-git push
-
-echo ""
-echo "🎉 Setup complete and script removed!"
-echo "Your project is deployed and fully configured."
