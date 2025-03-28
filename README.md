@@ -138,6 +138,17 @@ This will:
 
 ---
 
+### ⏳ What happens next?
+
+After the script completes:
+
+- 🔁 Your `README.md` will be updated with the **next steps of the project**
+- 🧭 This update is automatic and only takes a few seconds
+
+> 🕒 **Please wait ~30 seconds**, then **refresh your GitHub repository page** to see the updated README.
+
+---
+
 ### 📝 Prefer Manual Setup?
 
 You can still configure things manually:
@@ -162,6 +173,8 @@ git commit -m "Restore GitHub Actions workflows"
 git push
 ```
 
+> 🕒 After pushing, wait ~30 seconds and refresh the repo page — a GitHub Action will update the README with the next steps.
+
 ---
 
 #### 3. Redeploy manually:
@@ -172,7 +185,10 @@ vercel --prod
 
 ---
 
-Once complete, your project is fully configured and deployed!
+Once complete, your project is fully configured and deployed!  
+
+🕒 **Hang tight — it may take around 30 seconds for everything to finalize.**  
+🔁 When ready, **refresh this page** to see the next steps.
 
 ---
 <!-- INIT-REPO-END -->
