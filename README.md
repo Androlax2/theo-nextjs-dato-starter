@@ -148,7 +148,8 @@ echo "$SITE_URL" | vercel env add SITE_URL production
 Paste your secret token into Vercel like this:
 
 ```bash
-echo "your-secret-token-here" | vercel env add SECRET_API_TOKEN production
+vercel env rm SECRET_API_TOKEN --yes
+echo "your-secret-token-here" | vercel env add SECRET_API_TOKEN
 ```
 
 > ⚠️ Replace "your-secret-token-here" with the actual token you generated earlier.
