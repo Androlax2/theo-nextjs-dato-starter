@@ -1,6 +1,6 @@
 {
   "$schema": "https://raw.githubusercontent.com/streetsidesoftware/cspell/main/cspell.schema.json",
-  "import": ["@cspell/dict-fr-fr/cspell-ext.json"],
+  "import": ["./node_modules/@cspell/dict-fr-fr/cspell-ext.json"],
   "languageSettings": [
     {
       "languageId": "*",
