@@ -228,7 +228,7 @@ Or via the **Vercel UI**:
 
 - Go to [https://vercel.com/dashboard](https://vercel.com/dashboard)
 - Open your project
-- Click **"Deployments" → "+" (top right) → **"Create deployment"**
+- Click **"Deployments"** → **"+" (top right)** → **"Create deployment"**
 
 ---
 
