@@ -63,7 +63,24 @@ Follow the Vercel Wizard and deploy the project.
 
 ---
 
-### 9. 🔐 Set the Webhook Secret  
+---
+
+### 9. 💻 Clone Your New Repository
+
+Once the setup wizard finishes, it will have created a new GitHub repository under your account or organization.
+
+Clone it locally:
+
+<!-- code block -->
+git clone https://github.com/YOUR_USERNAME/YOUR_REPO_NAME.git
+cd YOUR_REPO_NAME
+<!-- code block -->
+
+> Replace `YOUR_USERNAME/YOUR_REPO_NAME` with the actual path to your newly created GitHub repo.
+
+---
+
+### 10. 🔐 Set the Webhook Secret  
 
 Generate a secure token:
 
@@ -78,7 +95,7 @@ Copy the result and replace `secretTokenProtectingWebhookEndpointsFromBeingCalle
 
 ---
 
-### 10. 🔧 Configure Vercel Environment Variables  
+### 11. 🔧 Configure Vercel Environment Variables  
 
 ## 📝 Manually
 
@@ -160,15 +177,15 @@ Now your production environment will have both `SITE_URL` and `SECRET_API_TOKEN`
 
 ---
 
-### 11. 🔄 Redeploy the Project  
+### 12. 🔄 Redeploy the Project  
 
 After setting env vars, trigger a new deployment on Vercel.
 
 ---
 
-### 12. 💻 Clone the Repo Locally 
+### 13. 💻 Restore GitHub Actions Workflows
 
-Clone the repo locally and run these commands on the newly created repo : 
+Run the following commands to restore the GitHub Actions workflows:
 
 ```bash
 mv .github/_workflows .github/workflows
@@ -177,10 +194,10 @@ git commit -m "Restore GitHub Actions workflows"
 git push
 ```
 
-> This ensures that the workflows are in your repository. You'll need it to continue
-> For some reason, Vercel remove the `./github/workflows/` folder when cloning.
+> This ensures that the workflows are correctly committed to your repository.  
+> For some reason, Vercel removes the `./github/workflows/` folder when cloning.
 
-When you've done that, you're all set to continue on your repo. The `README.md` will update to show you the next steps.
+Once that’s done, you're all set! The `README.md` will automatically update to show you the next steps.
 
 ---
 <!-- INIT-REPO-END -->
