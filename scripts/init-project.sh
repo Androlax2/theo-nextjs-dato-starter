@@ -214,6 +214,7 @@ fi
 
 echo ""
 echo "🚀 Redeploying the project (production)..."
+echo "⏳ This might take a few seconds... please wait until deployment is complete."
 vercel --prod --yes
 
 echo ""
