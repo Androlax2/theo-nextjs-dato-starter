@@ -99,9 +99,7 @@ After setting env vars, trigger a new deployment on Vercel.
 
 ### 12. 💻 Clone the Repo Locally 
 
-Clone the repo locally and follow the README on the newly created repo.
-
-Run these commands on the newly created repo : 
+Clone the repo locally and run these commands on the newly created repo : 
 
 ```bash
 mv .github/_workflows .github/workflows
