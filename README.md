@@ -80,24 +80,32 @@ cd YOUR_REPO_NAME
 
 ### 10. 🔐 Set the Webhook Secret  
 
-Generate a secure token:
+You don’t need to manually create or configure any secret token — the setup script takes care of it for you.  
 
-```bash
-openssl rand -hex 32
-```
+It will automatically:
 
-> 📋 **Copy and save this token somewhere safe** — you'll need it again in the next steps!
+- 🔐 Generate a secure token
+- ✅ Add it to your Vercel environment as `SECRET_API_TOKEN`
+- ✅ Configure your DatoCMS project:
+  - Webhook: **Invalidate Next.js Cache**
+  - Plugins:
+    - `datocms-plugin-web-previews`
+    - `datocms-plugin-seo-readability-analysis`
 
-Copy the result and replace `secretTokenProtectingWebhookEndpointsFromBeingCalledByAnyone` in:
-
-- ✅ **Project Settings → Webhooks** (Invalidate Next.js Cache)
-- ✅ **Configuration → Plugins** (2 plugin configs)
+> 🧠 Want to handle this manually instead?
+>
+> You can generate your own token like this:
+>
+> ```bash
+> openssl rand -hex 32
+> ```
+> Then follow the manual setup instructions below to apply it yourself.
 
 ---
 
 ### 11. 🔧 Final Setup: Configure Vercel Environment Variables & Redeploy  
 
-We’ve bundled everything — setting environment variables, restoring GitHub Actions, and redeploying — into a single script:
+We’ve bundled everything — secure token, environment variables, plugin + webhook config, GitHub Actions restore, and redeployment — into a single script:
 
 ---
 
@@ -130,11 +138,15 @@ chmod +x ./scripts/init-project.sh
 
 This will:
 
-- Prompt you for the secure token you generated in step 10
-- Set the `SITE_URL` environment variable based on your latest production deployment
-- Add the `SECRET_API_TOKEN` to all environments
-- Restore `.github/workflows/`
-- Trigger a new Vercel production deployment
+- 🔐 **Generate a secure token**
+- 🌐 Detect your latest production deployment
+- 🔧 Set the `SITE_URL` and `SECRET_API_TOKEN` env vars on Vercel
+- 🔄 Update:
+  - ✅ Your **webhook URL** (Invalidate Next.js Cache)
+  - ✅ `datocms-plugin-web-previews`
+  - ✅ `datocms-plugin-seo-readability-analysis`
+- 🛠 Restore `.github/workflows/`
+- 🚀 Redeploy your project to production
 - 🧹 Delete itself after running
 
 ---
@@ -152,20 +164,44 @@ After the script completes:
 
 ### 📝 Prefer Manual Setup?
 
-You can still configure things manually:
+You can still configure everything manually if needed:
+
+---
 
 #### 1. Set environment variables via Vercel UI:
 
+Go to [https://vercel.com/dashboard](https://vercel.com/dashboard), select your project → **Settings** → **Environment Variables**, and add:
+
 | Key               | Value                                 |
 |------------------|---------------------------------------|
-| `SECRET_API_TOKEN` | The token you generated above         |
+| `SECRET_API_TOKEN` | The token you generated manually      |
 | `SITE_URL`         | Your deployed domain (e.g. `https://example.com`) |
 
 > ⚠️ Do not include a trailing slash in `SITE_URL`.
 
 ---
 
-#### 2. Restore GitHub Actions manually:
+#### 2. Manually configure Webhooks and Plugins in DatoCMS:
+
+- 🔁 **Webhook**:
+  - Go to **Settings → Webhooks**
+  - Edit the "Invalidate Next.js Cache" webhook
+  - Set the URL to:  
+    `https://your-vercel-domain/api/invalidate-cache?token=YOUR_SECRET`
+
+- 🧩 **Plugin Configs**:
+  - Go to **Settings → Plugins** → `datocms-plugin-web-previews`
+    - Set preview webhook to:  
+      `https://your-vercel-domain/api/preview-links?token=YOUR_SECRET`
+  - Then update `datocms-plugin-seo-readability-analysis`:
+    - Set Frontend metadata endpoint URL to:  
+      `https://your-vercel-domain/api/seo-analysis?token=YOUR_SECRET`
+    - Set Auto-apply to all JSON fields with the following API identifier: to:
+      - `seo_analysis`
+
+---
+
+#### 3. Restore GitHub Actions manually:
 
 ```bash
 mv .github/_workflows .github/workflows
@@ -180,11 +216,19 @@ git push
 
 ---
 
-#### 3. Redeploy manually:
+#### 4. Redeploy manually:
+
+Via CLI:
 
 ```bash
 vercel --prod
 ```
+
+Or via the **Vercel UI**:
+
+- Go to [https://vercel.com/dashboard](https://vercel.com/dashboard)
+- Open your project
+- Click **"Deployments" → "+" (top right) → **"Create deployment"**
 
 ---
 

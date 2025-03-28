@@ -142,6 +142,47 @@ else
       echo "✅ Plugin successfully updated!"
     fi
   fi
+
+  echo ""
+  echo "🔄 Updating DatoCMS SEO Analysis plugin with secret token..."
+
+  SEO_ANALYSIS_URL="${SITE_URL}/api/seo-analysis?token=${SECRET_TOKEN}"
+
+  SEO_PLUGIN_ID=$(echo "$PLUGIN_LIST" | jq -r '.data[] | select(.attributes.package_name == "datocms-plugin-seo-readability-analysis") | .id')
+
+  if [ -z "$SEO_PLUGIN_ID" ]; then
+    echo "❌ Could not find plugin 'datocms-plugin-seo-readability-analysis'."
+    echo "$PLUGIN_LIST"
+  else
+    echo "✅ Found plugin ID: $SEO_PLUGIN_ID"
+    echo "➡️ Updating htmlGeneratorUrl to: $SEO_ANALYSIS_URL"
+
+    SEO_PATCH_RESPONSE=$(curl -s -X PATCH "https://site-api.datocms.com/plugins/${SEO_PLUGIN_ID}" \
+      -H "Authorization: Bearer ${DATOCMS_CMA_TOKEN}" \
+      -H "Accept: application/json" \
+      -H "Content-Type: application/json" \
+      -H "X-Api-Version: 3" \
+      -d "{
+        \"data\": {
+          \"id\": \"${SEO_PLUGIN_ID}\",
+          \"type\": \"plugin\",
+          \"attributes\": {
+            \"parameters\": {
+              \"htmlGeneratorUrl\": \"${SEO_ANALYSIS_URL}\",
+              \"autoApplyToFieldsWithApiKey\": \"seo_analysis\",
+              \"setSeoReadabilityAnalysisFieldExtensionId\": true
+            }
+          }
+        }
+      }")
+
+    if echo "$SEO_PATCH_RESPONSE" | grep -q '"type":"api_error"'; then
+      echo "❌ Failed to update SEO plugin:"
+      echo "$SEO_PATCH_RESPONSE"
+    else
+      echo "✅ SEO Analysis plugin successfully updated!"
+    fi
+  fi
 fi
 
 echo ""
