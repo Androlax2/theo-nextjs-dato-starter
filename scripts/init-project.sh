@@ -6,15 +6,10 @@ echo ""
 echo "🚀 Initializing Vercel + GitHub + DatoCMS project"
 echo "-----------------------------------------------"
 
-# Prompt for token
-read -sp "🔐 Enter the secret token you generated (from step 10): " SECRET_TOKEN
-echo ""
-
-# Validate token
-if [ -z "$SECRET_TOKEN" ]; then
-  echo "❌ Token cannot be empty. Exiting."
-  exit 1
-fi
+# Generate a secret token
+echo "🔐 Generating secret token..."
+SECRET_TOKEN=$(openssl rand -hex 32)
+echo "✅ Generated secret token: $SECRET_TOKEN"
 
 echo ""
 echo "🔗 Linking Vercel project (if not already linked)..."
@@ -42,15 +37,62 @@ echo "📦 Setting Vercel environment variables..."
 
 # Remove SITE_URL if exists
 vercel env rm SITE_URL --yes || true
-
-# Add SITE_URL
 echo "$SITE_URL" | vercel env add SITE_URL production
 
 # Remove SECRET_API_TOKEN if exists
 vercel env rm SECRET_API_TOKEN --yes || true
-
-# Add SECRET_API_TOKEN
 echo "$SECRET_TOKEN" | vercel env add SECRET_API_TOKEN production
+
+echo ""
+echo "📡 Retrieving DATOCMS_CMA_TOKEN from Vercel..."
+
+DATOCMS_CMA_TOKEN=$(vercel env ls | grep DATOCMS_CMA_TOKEN | awk '{print $4}')
+
+if [ -z "$DATOCMS_CMA_TOKEN" ]; then
+  echo "❌ DATOCMS_CMA_TOKEN not found in Vercel environment. Skipping DatoCMS webhook update."
+else
+  echo "✅ Found DATOCMS_CMA_TOKEN"
+
+  echo ""
+  echo "🔄 Updating DatoCMS webhook URL with secret token..."
+
+  WEBHOOK_URL="${SITE_URL}/api/invalidate-cache?token=${SECRET_TOKEN}"
+  echo "Updating webhook URL to: $WEBHOOK_URL"
+
+  WEBHOOK_LIST=$(curl -s -X GET "https://site-api.datocms.com/webhooks" \
+    -H "Authorization: Bearer ${DATOCMS_CMA_TOKEN}" \
+    -H "Accept: application/json" \
+    -H "X-Api-Version: 3")
+
+  WEBHOOK_ID=$(echo "$WEBHOOK_LIST" | jq -r '.data[] | select(.attributes.name == "🔄 Invalidate Next.js Cache") | .id')
+
+  if [ -z "$WEBHOOK_ID" ]; then
+    echo "❌ Could not find existing webhook to update."
+    echo "$WEBHOOK_LIST"
+  else
+    WEBHOOK_UPDATE_RESPONSE=$(curl -s -X PATCH "https://site-api.datocms.com/webhooks/${WEBHOOK_ID}" \
+      -H "Authorization: Bearer ${DATOCMS_CMA_TOKEN}" \
+      -H "Accept: application/json" \
+      -H "Content-Type: application/json" \
+      -H "X-Api-Version: 3" \
+      -d "{
+        \"data\": {
+          \"id\": \"${WEBHOOK_ID}\",
+          \"type\": \"webhook\",
+          \"attributes\": {
+            \"url\": \"${WEBHOOK_URL}\"
+          }
+        }
+      }")
+
+    if echo "$WEBHOOK_UPDATE_RESPONSE" | grep -q '"type":"api_error"'; then
+      echo "❌ Failed to update DatoCMS webhook:"
+      echo "$WEBHOOK_UPDATE_RESPONSE"
+    else
+      echo "✅ DatoCMS webhook successfully updated."
+    fi
+  fi
+fi
 
 echo ""
 echo "🔁 Restoring GitHub Actions workflows (if needed)..."
