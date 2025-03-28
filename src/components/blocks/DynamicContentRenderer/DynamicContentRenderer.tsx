@@ -6,6 +6,7 @@ import { type FragmentOf, graphql, readFragment } from "@/lib/datocms/graphql";
 import dynamic from "next/dynamic";
 import type React from "react";
 
+import { ImageBlockFragment } from "@/components/blocks/ImageBlock/ImageBlock";
 import { handleError } from "@/lib/utils";
 import defaultComponentRegistry from "./componentRegistry";
 
@@ -35,6 +36,9 @@ export const DynamicContentRendererFragment = graphql(
             ... on VideoBlockRecord {
                 ...VideoBlockFragment
             }
+            ... on ImageBlockRecord {
+                ...ImageBlockFragment
+            }
             # plop: DynamicContentRendererFragmentSpreads
         }
     }
@@ -42,6 +46,7 @@ export const DynamicContentRendererFragment = graphql(
   [
     ImageGalleryBlockFragment,
     VideoBlockFragment,
+    ImageBlockFragment,
     // plop: DynamicContentRendererFragmentComposition
   ],
 );
