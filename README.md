@@ -124,6 +124,7 @@ yarn global add vercel
 From the root of your cloned repo:
 
 ```bash
+chmod +x ./scripts/init-project.sh
 ./scripts/init-project.sh
 ```
 
