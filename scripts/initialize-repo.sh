@@ -260,10 +260,12 @@ function cleanup_readme_sections() {
   echo "🧼 Cleaning up README.md sections..."
 
   if [[ -f "README.md" ]]; then
-    echo "🧽 Removing everything before and including ORIGINAL README block..."
+    echo "🧽 Keeping only content between ORIGINAL README markers..."
 
-    # Remove everything from start of file through to ORIGINAL-README-END -->
-    sed -i.bak '1,/ORIGINAL-README-END -->/d' README.md
+    # Extract everything between the two markers, excluding the markers themselves
+    awk '/<!-- ORIGINAL-README-START/{flag=1; next} /ORIGINAL-README-END -->/{flag=0} flag' README.md > README.cleaned.md
+
+    mv README.cleaned.md README.md
 
     echo "🧽 Removing cloned repo setup section..."
     sed -i.bak '/<!-- REPO-CLONED-START/,/REPO-CLONED-END -->/d' README.md
