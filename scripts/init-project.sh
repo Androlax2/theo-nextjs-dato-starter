@@ -45,7 +45,7 @@ echo ""
 echo "📁 Enter your DatoCMS CMA token (DATOCMS_CMA_TOKEN):"
 echo "---------------------------------------------------"
 echo "You can find it in your DatoCMS project:"
-echo "Go to → Settings → API tokens → 'CMA token (Content Management API)'"
+echo "Go to → Project Settings → API tokens → 'CMA Only (Admin)'"
 echo ""
 read -rsp "🔐 Paste DATOCMS_CMA_TOKEN here: " DATOCMS_CMA_TOKEN
 echo ""
