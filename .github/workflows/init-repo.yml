@@ -59,22 +59,25 @@ jobs:
       - name: Run initialization script
         env:
           GH_TOKEN: ${{ env.PAT_TOKEN }}
+          LHCI_GITHUB_APP_TOKEN: ${{ env.LHCI_GITHUB_APP_TOKEN }}
         run: |
-          # Base args
-          INIT_CMD="bash scripts/initialize-repo.sh \
-            '${{ github.repository_owner }}' \
-            '${{ github.event.repository.name }}' \
-            '${{ env.PAT_TOKEN }}' \
-            \"$ENV_FILE\" \
-            \"$WEBSITE_URL\""
+          echo "🔍 LHCI_GITHUB_APP_TOKEN value: >>>${LHCI_GITHUB_APP_TOKEN}<<<"
 
-          # Append LHCI token if it's non-empty
-          if [[ -n "${LHCI_GITHUB_APP_TOKEN// }" ]]; then
+          if [[ -n "$(echo "$LHCI_GITHUB_APP_TOKEN" | tr -d '[:space:]')" ]]; then
             echo "✅ LHCI_GITHUB_APP_TOKEN is present. Passing to init script."
-            INIT_CMD+=" \"$LHCI_GITHUB_APP_TOKEN\""
+            bash scripts/initialize-repo.sh \
+              "${{ github.repository_owner }}" \
+              "${{ github.event.repository.name }}" \
+              "${{ env.PAT_TOKEN }}" \
+              "$ENV_FILE" \
+              "$WEBSITE_URL" \
+              "$LHCI_GITHUB_APP_TOKEN"
           else
             echo "ℹ️ LHCI_GITHUB_APP_TOKEN not set or empty. Skipping."
+            bash scripts/initialize-repo.sh \
+              "${{ github.repository_owner }}" \
+              "${{ github.event.repository.name }}" \
+              "${{ env.PAT_TOKEN }}" \
+              "$ENV_FILE" \
+              "$WEBSITE_URL"
           fi
-
-          # Evaluate the full command
-          eval "$INIT_CMD"
