@@ -217,6 +217,11 @@ function remove_init_files() {
     git rm scripts/initialize-repo.sh
   fi
 
+  # Remove the init project script
+  if [[ -f "scripts/init-project.sh" ]]; then
+    git rm scripts/init-project.sh
+  fi
+
   # Remove the reveal-clone-repo-readme workflow
   if [[ -f ".github/workflows/reveal-clone-repo-readme.yml" ]]; then
     git rm .github/workflows/reveal-clone-repo-readme.yml
