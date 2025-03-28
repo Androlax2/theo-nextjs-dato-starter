@@ -260,17 +260,18 @@ function cleanup_readme_sections() {
   echo "🧼 Cleaning up README.md sections..."
 
   if [[ -f "README.md" ]]; then
-    echo "🧽 Removing everything before ORIGINAL README..."
+    echo "🧽 Removing everything before and including ORIGINAL README block..."
 
-    # Remove everything from the start of the file up to and including the marker
-    sed -i '' '1,/<!-- ORIGINAL-README-START -->/d' README.md
+    # Remove everything from start of file through to ORIGINAL-README-END -->
+    sed -i.bak '1,/ORIGINAL-README-END -->/d' README.md
 
     echo "🧽 Removing cloned repo setup section..."
-    sed -i '' '/<!-- REPO-CLONED-START/,/REPO-CLONED-END -->/d' README.md
+    sed -i.bak '/<!-- REPO-CLONED-START/,/REPO-CLONED-END -->/d' README.md
 
     echo "🧻 Tidying up empty lines..."
-    sed -i '' '/^$/N;/^\n$/D' README.md
+    sed -i.bak '/^$/N;/^\n$/D' README.md
 
+    rm -f README.md.bak
     git add README.md
     echo "✅ README.md cleaned and staged."
   else
