@@ -292,6 +292,8 @@ Enable these permissions:
 
 📌 Save this token securely — you’ll use it during repository initialization.
 
+> ⚠️ If you're creating this token under an **organization**, it may require approval from an admin before it can be used.  
+
 ---
 
 ### 📊 3. (Optional) Set Up Lighthouse CI
