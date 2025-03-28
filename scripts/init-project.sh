@@ -41,6 +41,7 @@ echo ""
 echo "📦 Setting Vercel environment variables..."
 
 # Add SITE_URL
+vercel env rm SITE_URL || true
 echo "$SITE_URL" | vercel env add SITE_URL production
 echo "$SITE_URL" | vercel env add SITE_URL preview
 echo "$SITE_URL" | vercel env add SITE_URL development
