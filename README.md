@@ -169,7 +169,9 @@ You can still configure things manually:
 
 ```bash
 mv .github/_workflows .github/workflows
+rm -rf .github/_workflows
 git add .github/workflows
+git add .github/_workflows
 git commit -m "Restore GitHub Actions workflows"
 git push
 ```
