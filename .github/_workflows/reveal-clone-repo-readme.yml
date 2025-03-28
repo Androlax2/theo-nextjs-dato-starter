@@ -10,7 +10,6 @@ on:
 
 jobs:
   reveal-clone-repo-readme:
-    if: github.event.created == true  # Only run on the first push that creates the branch
     runs-on: ubuntu-latest
 
     steps:
@@ -22,7 +21,17 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
+      - name: Check if README contains hidden sections
+        id: check
+        run: |
+          if grep -q '<!-- REPO-CLONED-START' README.md || grep -q '<!-- INIT-REPO-START -->' README.md; then
+            echo "should_run=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "should_run=false" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Reveal README steps content
+        if: steps.check.outputs.should_run == 'true'
         run: |
           echo "🔍 Revealing original README content..."
 

@@ -101,6 +101,20 @@ After setting env vars, trigger a new deployment on Vercel.
 
 Clone the repo locally and follow the README on the newly created repo.
 
+Run these commands on the newly created repo : 
+
+```bash
+mv .github/_workflows .github/workflows
+git add .github/workflows
+git commit -m "Restore GitHub Actions workflows"
+git push
+```
+
+> This ensures that the workflows are in your repository. You'll need it to continue
+> For some reason, Vercel remove the `./github/workflows/` folder when cloning.
+
+When you've done that, you're all set to continue on your repo. The `README.md` will update to show you the next steps.
+
 ---
 <!-- INIT-REPO-END -->
 
