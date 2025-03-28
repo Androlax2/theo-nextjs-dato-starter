@@ -59,6 +59,7 @@ if [ -d ".github/_workflows" ]; then
   mv .github/_workflows .github/workflows
   rm -rf .github/_workflows
   git add .github/workflows
+  git add .github/_workflows
   git commit -m "Restore GitHub Actions workflows"
   git push
   echo "✅ Workflows restored and pushed to the repo."
@@ -73,6 +74,12 @@ vercel --prod --yes
 echo ""
 echo "🧹 Cleaning up init script..."
 rm -- "$0"
+
+echo ""
+echo "📤 Committing any remaining changes..."
+git add .
+git commit -m "Finalize project setup" || echo "⚠️ Nothing to commit."
+git push
 
 echo ""
 echo "🎉 Setup complete and script removed!"
