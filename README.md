@@ -63,8 +63,6 @@ Follow the Vercel Wizard and deploy the project.
 
 ---
 
----
-
 ### 9. 💻 Clone Your New Repository
 
 Once the setup wizard finishes, it will have created a new GitHub repository under your account or organization.
