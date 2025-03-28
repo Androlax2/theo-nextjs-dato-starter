@@ -80,7 +80,7 @@ Copy the result and replace `secretTokenProtectingWebhookEndpointsFromBeingCalle
 
 ### 10. 🔧 Configure Vercel Environment Variables  
 
-## Manually
+## 📝 Manually
 
 Set the following in your Vercel project settings:
 
@@ -99,17 +99,17 @@ You can also configure your environment variables from the command line:
 
 ### 1. 🛠 Install the Vercel CLI
 
-<!-- code block -->
-npm install -g vercel
-<!-- code block -->
+```bash
+npm i -g vercel
+```
 
 Or with `pnpm` / `yarn`:
 
-<!-- code block -->
-pnpm add -g vercel
+```bash
+pnpm i -g vercel
 # or
 yarn global add vercel
-<!-- code block -->
+```
 
 ---
 
@@ -117,9 +117,9 @@ yarn global add vercel
 
 If your project isn’t already linked to Vercel:
 
-<!-- code block -->
+```bash
 vercel link
-<!-- code block -->
+```
 
 This will prompt you to select your team, project, and confirm the setup.
 
@@ -129,7 +129,7 @@ This will prompt you to select your team, project, and confirm the setup.
 
 Fetch the latest production deployment and use it to set `SITE_URL`:
 
-<!-- code block -->
+```bash
 DEPLOYMENT_URL=$(vercel ls --prod | grep -m1 -Eo 'https://[a-z0-9\-]+\.vercel\.app')
 
 PROJECT_NAME=$(echo "$DEPLOYMENT_URL" | sed -E 's|https://([a-z0-9\-]+)-[a-z0-9]+-[a-z0-9]+\.vercel\.app|\1|')
@@ -138,10 +138,8 @@ PROJECT_NAME=$(echo "$DEPLOYMENT_URL" | sed -E 's|https://([a-z0-9\-]+)-[a-z0-9]
 SITE_URL="https://${PROJECT_NAME}.vercel.app"
 echo "Detected domain: $SITE_URL"
 
-echo "$SITE_URL" | vercel env add SITE_URL production --yes
-<!-- code block -->
-
-> ⚠️ Do **not** include a trailing slash in `SITE_URL`.
+echo "$SITE_URL" | vercel env add SITE_URL production
+```
 
 ---
 
@@ -149,9 +147,9 @@ echo "$SITE_URL" | vercel env add SITE_URL production --yes
 
 Paste your secret token into Vercel like this:
 
-<!-- code block -->
+```bash
 echo "your-secret-token-here" | vercel env add SECRET_API_TOKEN production --yes
-<!-- code block -->
+```
 
 ---
 
