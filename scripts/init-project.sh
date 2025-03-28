@@ -41,13 +41,13 @@ echo ""
 echo "📦 Setting Vercel environment variables..."
 
 # Remove SITE_URL if exists
-vercel env rm SITE_URL --yes --environment production || true
+vercel env rm SITE_URL --yes || true
 
 # Add SITE_URL
 echo "$SITE_URL" | vercel env add SITE_URL production
 
 # Remove SECRET_API_TOKEN if exists
-vercel env rm SECRET_API_TOKEN --yes --environment production || true
+vercel env rm SECRET_API_TOKEN --yes || true
 
 # Add SECRET_API_TOKEN
 echo "$SECRET_TOKEN" | vercel env add SECRET_API_TOKEN production
