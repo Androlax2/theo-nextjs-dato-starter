@@ -6,21 +6,10 @@ set -e
 git config user.name "github-actions[bot]"
 git config user.email "github-actions[bot]@users.noreply.github.com"
 
-# TODO: Remove after test
 # Clean up branches if they already exist remotely from previous tests
-GIT_BRANCH="test-init-repo-auto-update"
+GIT_BRANCH="main"
 
 git fetch origin
-
-if git ls-remote --exit-code --heads origin "$GIT_BRANCH" &>/dev/null; then
-  echo "🧹 Deleting existing remote branch $GIT_BRANCH (from previous test runs)..."
-  git push origin --delete "$GIT_BRANCH"
-fi
-
-if git ls-remote --exit-code --heads origin gh-pages &>/dev/null; then
-  echo "🧹 Deleting existing remote branch gh-pages (from previous test runs)..."
-  git push origin --delete gh-pages
-fi
 
 # Inputs
 REPO_OWNER="$1"
