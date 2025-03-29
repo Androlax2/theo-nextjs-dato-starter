@@ -522,7 +522,7 @@ prompt_github_tokens() {
   echo "📎 Generate a token here: https://github.com/settings/personal-access-tokens"
   echo "→ Click 'Generate new token (classic)' or create a fine-grained token"
   echo ""
-  echo "✅ Required permissions:"
+  echo "✅ Required permissions (with Read & Write access):"
   echo "   - Repository → Administration"
   echo "   - Repository → Dependabot secrets"
   echo "   - Repository → Environments"
@@ -533,11 +533,8 @@ prompt_github_tokens() {
   echo "   an admin may need to approve it before it becomes usable."
   echo ""
 
-   read -rsp "🔐 Paste your GitHub personal access token (or press Enter to skip): " GITHUB_TOKEN
-   echo ""
-
-# TODO: Remove
-#  echo "📁 Using hardcoded GitHub token for testing..."
+  read -rsp "🔐 Paste your GitHub personal access token (or press Enter to skip): " GITHUB_TOKEN
+  echo ""
 
   echo ""
   echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
@@ -548,11 +545,8 @@ prompt_github_tokens() {
   echo "→ Click 'Configure', choose your repo, and copy the project token"
   echo ""
 
-   read -rsp "🔐 Paste your Lighthouse CI project token (optional): " LHCI_GITHUB_APP_TOKEN
-   echo ""
-
-# TODO: REmove
-#  echo "📁 Using hardcoded Lighthouse CI token for testing..."
+  read -rsp "🔐 Paste your Lighthouse CI project token (optional): " LHCI_GITHUB_APP_TOKEN
+  echo ""
 
   if [[ -z "$GITHUB_TOKEN" ]]; then
     echo ""
@@ -652,7 +646,7 @@ configure_github_repo() {
     fi
 
     echo ""
-    echo "🔐 Required token permissions:"
+    echo "🔐 Required token permissions (with Read & Write access)"
     echo "   - Repository → Administration"
     echo "   - Repository → Dependabot secrets"
     echo "   - Repository → Environments"
@@ -683,19 +677,91 @@ set_github_secrets() {
     if [[ -n "$value" ]]; then
       echo "::add-mask::$value"
       echo "→ Setting secret: $key = [REDACTED]"
-      gh secret set "$key" --body "$value"
-      gh secret set "$key" --body "$value" --app dependabot
+
+      # Set regular GitHub secret
+      set +e
+      gh_output=$(gh secret set "$key" --body "$value" 2>&1)
+      exit_code=$?
+      set -e
+
+      if [[ $exit_code -ne 0 ]]; then
+        echo "❌ Failed to set GitHub secret '$key'"
+        echo "🔐 GitHub CLI error:"
+        echo "$gh_output"
+        echo ""
+        echo "💡 Double-check your GitHub token permissions (Read & Write required):"
+        echo "   - Repository → Secrets"
+        echo "   - Repository → Administration"
+        echo ""
+        echo "📌 If this is an organization repo, your token might need admin approval."
+        echo ""
+        exit 1
+      fi
+
+      # Attempt to set Dependabot secret — FAIL if it doesn't work
+      echo "→ Setting Dependabot secret: $key = [REDACTED]"
+      set +e
+      gh_output_dependabot=$(gh secret set "$key" --body "$value" --app dependabot 2>&1)
+      exit_code_dependabot=$?
+      set -e
+
+      if [[ $exit_code_dependabot -ne 0 ]] || echo "$gh_output_dependabot" | grep -qiE "resource not accessible|403|saml enforcement"; then
+        echo "❌ Failed to set Dependabot secret '$key'"
+        echo "🔐 GitHub CLI error:"
+        echo "$gh_output_dependabot"
+        echo ""
+        echo "💡 Ensure your token includes:"
+        echo "   - Repository → Dependabot secrets (Read & Write)"
+        echo ""
+        echo "📌 Organization tokens may require admin approval for Dependabot access."
+        echo ""
+        exit 1
+      fi
     fi
   done
 
   if [[ -n "$LHCI_GITHUB_APP_TOKEN" ]]; then
     echo "::add-mask::$LHCI_GITHUB_APP_TOKEN"
     echo "→ Setting secret: LHCI_GITHUB_APP_TOKEN = [REDACTED]"
-    gh secret set "LHCI_GITHUB_APP_TOKEN" --body "$LHCI_GITHUB_APP_TOKEN"
-    gh secret set "LHCI_GITHUB_APP_TOKEN" --body "$LHCI_GITHUB_APP_TOKEN" --app dependabot
+
+    # Main secret
+    set +e
+    gh_output=$(gh secret set "LHCI_GITHUB_APP_TOKEN" --body "$LHCI_GITHUB_APP_TOKEN" 2>&1)
+    exit_code=$?
+    set -e
+
+    if [[ $exit_code -ne 0 ]]; then
+      echo "❌ Failed to set LHCI_GITHUB_APP_TOKEN"
+      echo "🔐 GitHub CLI error:"
+      echo "$gh_output"
+      echo ""
+      echo "💡 Make sure your GitHub token has permission to write secrets."
+      echo "🔁 Then re-run the setup script."
+      exit 1
+    fi
+
+    # Dependabot
+    echo "→ Setting Dependabot secret: LHCI_GITHUB_APP_TOKEN = [REDACTED]"
+    set +e
+    gh_output_dependabot=$(gh secret set "LHCI_GITHUB_APP_TOKEN" --body "$LHCI_GITHUB_APP_TOKEN" --app dependabot 2>&1)
+    exit_code_dependabot=$?
+    set -e
+
+    if [[ $exit_code_dependabot -ne 0 ]] || echo "$gh_output_dependabot" | grep -qiE "resource not accessible|403|saml enforcement"; then
+      echo "❌ Failed to set LHCI_GITHUB_APP_TOKEN for Dependabot"
+      echo "🔐 GitHub CLI error:"
+      echo "$gh_output_dependabot"
+      echo ""
+      echo "💡 Ensure your token includes:"
+      echo "   - Repository → Dependabot secrets (Read & Write)"
+      echo ""
+      echo "📌 Organization tokens may require admin approval for Dependabot access."
+      echo ""
+      exit 1
+    fi
   fi
 
-  echo "✅ Secrets applied."
+  echo "✅ All GitHub secrets set successfully."
 }
 
 enable_github_pages() {
@@ -718,7 +784,7 @@ enable_github_pages() {
 
   echo "🔍 Checking existing GitHub Pages config..."
   set +e
-  current_config=$(gh api "repos/${REPO_OWNER}/${REPO_NAME}/pages" 2>/dev/null)
+  current_config=$(gh api "repos/${REPO_OWNER}/${REPO_NAME}/pages" 2>&1)
   config_status=$?
   set -e
 
@@ -738,10 +804,10 @@ enable_github_pages() {
 
   echo "🔧 Setting GitHub Pages source to gh-pages branch (root)..."
   set +e
-  gh api "repos/${REPO_OWNER}/${REPO_NAME}/pages" \
+  gh_output=$(gh api "repos/${REPO_OWNER}/${REPO_NAME}/pages" \
     --method POST \
     --silent \
-    --input - <<< '{ "source": { "branch": "gh-pages", "path": "/" } }'
+    --input - <<< '{ "source": { "branch": "gh-pages", "path": "/" } }' 2>&1)
   exit_code=$?
   set -e
 
@@ -751,6 +817,15 @@ enable_github_pages() {
     echo "ℹ️ GitHub Pages was already enabled (conflict)."
   else
     echo "❌ Failed to enable GitHub Pages (exit code $exit_code)"
+    echo "🔐 GitHub CLI error:"
+    echo "$gh_output"
+    echo ""
+    echo "💡 Ensure your GitHub token has the required permissions (Read & Write):"
+    echo "   - Repository → Pages"
+    echo "   - Repository → Administration"
+    echo ""
+    echo "📌 If this is an organization repo, token approval may be required."
+    exit 1
   fi
 }
 
@@ -817,19 +892,19 @@ function cleanup_readme_sections() {
 # 🚀 Run All Steps
 ##############################
 
-#ensure_vercel_cli_installed
-#generate_secret_token
-#link_vercel_project
-#get_vercel_site_url
-#set_vercel_env_variables
-#prompt_datocms_token
-#fetch_and_write_datocms_tokens_to_env
-#set_datocms_tokens_on_vercel
-#fetch_datocms_plugin_data
-#update_webhook
-#install_or_update_web_previews_plugin
-#install_or_update_seo_plugin
-#configure_slug_with_collections_plugin
+ensure_vercel_cli_installed
+generate_secret_token
+link_vercel_project
+get_vercel_site_url
+set_vercel_env_variables
+prompt_datocms_token
+fetch_and_write_datocms_tokens_to_env
+set_datocms_tokens_on_vercel
+fetch_datocms_plugin_data
+update_webhook
+install_or_update_web_previews_plugin
+install_or_update_seo_plugin
+configure_slug_with_collections_plugin
 
 prompt_github_tokens
 
@@ -840,10 +915,10 @@ if [[ "$SKIP_GITHUB" != true ]]; then
   enable_github_pages
 fi
 
-#remove_init_files
-#extract_datocms_project_info
-#update_readme_urls
-#cleanup_readme_sections
-#restore_workflows
-#final_push
-#trigger_vercel_deploy
+remove_init_files
+extract_datocms_project_info
+update_readme_urls
+cleanup_readme_sections
+restore_workflows
+final_push
+trigger_vercel_deploy
