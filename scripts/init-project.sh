@@ -84,10 +84,35 @@ fetch_and_write_datocms_tokens_to_env() {
   echo ""
   echo "🔑 Fetching DatoCMS API tokens from /access_tokens..."
 
-  tokens_response=$(curl -s -H "Authorization: Bearer ${DATOCMS_CMA_TOKEN}" \
+  response_file=$(mktemp)
+  http_status=$(curl -s -w "%{http_code}" -o "$response_file" \
+    -H "Authorization: Bearer ${DATOCMS_CMA_TOKEN}" \
     -H "Accept: application/json" \
     -H "X-Api-Version: 3" \
     https://site-api.datocms.com/access_tokens)
+
+  if [[ "$http_status" -ne 200 ]]; then
+    echo "❌ Failed to fetch tokens from DatoCMS (HTTP $http_status)"
+    error_message=$(cat "$response_file" | jq -r '.errors[0].detail // empty')
+    if [[ -n "$error_message" ]]; then
+      echo "🔍 Error message: $error_message"
+    fi
+
+    if [[ "$http_status" == "401" || "$http_status" == "403" ]]; then
+      echo ""
+      echo "🚫 Invalid or unauthorized DatoCMS CMA token."
+      echo "👉 Double-check your token in Project Settings → API Tokens"
+    elif [[ "$http_status" == "404" ]]; then
+      echo ""
+      echo "🚫 Resource not found. It's possible the environment does not exist."
+    fi
+
+    rm -f "$response_file"
+    exit 1
+  fi
+
+  tokens_response=$(cat "$response_file")
+  rm -f "$response_file"
 
   DRAFT_TOKEN=$(echo "$tokens_response" | jq -r '.data[] | select(.attributes.name == "CDA Only (Draft)") | .attributes.token')
   PUBLISHED_TOKEN=$(echo "$tokens_response" | jq -r '.data[] | select(.attributes.name == "CDA Only (Published)") | .attributes.token')
