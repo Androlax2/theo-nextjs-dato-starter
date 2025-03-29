@@ -235,9 +235,8 @@ If `.github/_workflows` exists, run:
 mv .github/_workflows .github/workflows
 rm -rf .github/_workflows
 git add .github/workflows
-git add .github/_workflows/
 git commit -m "Restore GitHub Actions workflows" --no-verify
-git push
+git push --no-verify
 ```
 
 ---
