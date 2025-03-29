@@ -533,7 +533,11 @@ prompt_github_tokens() {
   echo "   an admin may need to approve it before it becomes usable."
   echo ""
 
-  read -rp "🔐 Paste your GitHub personal access token (or press Enter to skip): " GITHUB_TOKEN
+   read -rsp "🔐 Paste your GitHub personal access token (or press Enter to skip): " GITHUB_TOKEN
+   echo ""
+
+# TODO: Remove
+#  echo "📁 Using hardcoded GitHub token for testing..."
 
   echo ""
   echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
@@ -544,7 +548,11 @@ prompt_github_tokens() {
   echo "→ Click 'Configure', choose your repo, and copy the project token"
   echo ""
 
-  read -rp "🔐 Paste your Lighthouse CI project token (optional): " LHCI_GITHUB_APP_TOKEN
+   read -rsp "🔐 Paste your Lighthouse CI project token (optional): " LHCI_GITHUB_APP_TOKEN
+   echo ""
+
+# TODO: REmove
+#  echo "📁 Using hardcoded Lighthouse CI token for testing..."
 
   if [[ -z "$GITHUB_TOKEN" ]]; then
     echo ""
@@ -602,10 +610,18 @@ configure_github_repo() {
   echo "🔧 Configuring GitHub repository settings..."
 
   REPO_URL=$(git config --get remote.origin.url)
-  REPO_NAME=$(basename -s .git "$REPO_URL")
-  REPO_OWNER=$(basename "$(dirname "$REPO_URL")")
+  echo "🔗 Raw REPO_URL: $REPO_URL"
 
-  gh api "repos/${REPO_OWNER}/${REPO_NAME}" \
+  # Extract REPO_OWNER and REPO_NAME (works for both HTTPS and SSH remotes)
+  REPO_OWNER=$(echo "$REPO_URL" | sed -E 's#.*[:/]([^/]+)/[^/]+\.git#\1#')
+  REPO_NAME=$(echo "$REPO_URL" | sed -E 's#.*[:/][^/]+/([^/]+)\.git#\1#')
+
+  echo "👤 REPO_OWNER: $REPO_OWNER"
+  echo "📁 REPO_NAME: $REPO_NAME"
+
+  echo "📡 Sending PATCH request to update repository settings..."
+  set +e
+  gh_response=$(gh api "repos/${REPO_OWNER}/${REPO_NAME}" \
     --method PATCH \
     --silent \
     --field allow_auto_merge=true \
@@ -618,9 +634,43 @@ configure_github_repo() {
     --field has_wiki=false \
     --field squash_merge_commit_message=PR_BODY \
     --field squash_merge_commit_title=PR_TITLE \
-    --field homepage="$SITE_URL"
+    --field homepage="$SITE_URL" 2>&1)
+  exit_code=$?
+  set -e
 
-  echo "✅ GitHub repository settings updated."
+  if [[ $exit_code -ne 0 ]]; then
+    echo "❌ Failed to configure GitHub repo."
+    echo "🔐 GitHub CLI error:"
+    echo "$gh_response"
+
+    if echo "$gh_response" | grep -q "Bad credentials"; then
+      echo ""
+      echo "🚫 The GitHub token provided is invalid or expired."
+    elif echo "$gh_response" | grep -q "Resource not accessible by personal access token"; then
+      echo ""
+      echo "🚫 Your token does not have permission to access this repository."
+    fi
+
+    echo ""
+    echo "🔐 Required token permissions:"
+    echo "   - Repository → Administration"
+    echo "   - Repository → Dependabot secrets"
+    echo "   - Repository → Environments"
+    echo "   - Repository → Pages"
+    echo "   - Repository → Secrets"
+    echo ""
+    echo "📌 If this repository belongs to an *organization*,"
+    echo "   an admin may need to approve the token for access."
+    echo ""
+    echo "💡 Generate a new token here:"
+    echo "   → https://github.com/settings/personal-access-tokens"
+    echo ""
+    echo "🔁 Then re-run the setup script."
+
+    exit 1
+  else
+    echo "✅ GitHub repository settings updated."
+  fi
 }
 
 set_github_secrets() {
@@ -652,7 +702,9 @@ enable_github_pages() {
   echo ""
   echo "📘 Enabling GitHub Pages..."
 
+  CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
   git fetch origin
+
   if ! git ls-remote --exit-code origin gh-pages &>/dev/null; then
     echo "🔧 Creating empty gh-pages branch..."
     git checkout --orphan gh-pages
@@ -661,16 +713,45 @@ enable_github_pages() {
     git add index.html
     git commit -m "chore: init gh-pages"
     git push origin gh-pages
-    git checkout main
+    git checkout "$CURRENT_BRANCH"
   fi
 
-  sleep 5
+  echo "🔍 Checking existing GitHub Pages config..."
+  set +e
+  current_config=$(gh api "repos/${REPO_OWNER}/${REPO_NAME}/pages" 2>/dev/null)
+  config_status=$?
+  set -e
+
+  if [[ $config_status -eq 0 ]]; then
+    source_branch=$(echo "$current_config" | jq -r '.source.branch // empty')
+    source_path=$(echo "$current_config" | jq -r '.source.path // empty')
+
+    if [[ "$source_branch" == "gh-pages" && "$source_path" == "/" ]]; then
+      echo "✅ GitHub Pages is already configured correctly (branch: $source_branch, path: $source_path)."
+      return
+    else
+      echo "⚠️ GitHub Pages is enabled but source is incorrect. Updating..."
+    fi
+  else
+    echo "ℹ️ GitHub Pages not enabled yet. Proceeding to enable it..."
+  fi
+
+  echo "🔧 Setting GitHub Pages source to gh-pages branch (root)..."
+  set +e
   gh api "repos/${REPO_OWNER}/${REPO_NAME}/pages" \
     --method POST \
     --silent \
-    --input - <<< "{ \"source\": { \"branch\": \"gh-pages\", \"path\": \"/\" } }"
+    --input - <<< '{ "source": { "branch": "gh-pages", "path": "/" } }'
+  exit_code=$?
+  set -e
 
-  echo "✅ GitHub Pages enabled."
+  if [[ $exit_code -eq 0 ]]; then
+    echo "✅ GitHub Pages enabled."
+  elif [[ $exit_code -eq 409 ]]; then
+    echo "ℹ️ GitHub Pages was already enabled (conflict)."
+  else
+    echo "❌ Failed to enable GitHub Pages (exit code $exit_code)"
+  fi
 }
 
 final_push() {
@@ -736,19 +817,19 @@ function cleanup_readme_sections() {
 # 🚀 Run All Steps
 ##############################
 
-ensure_vercel_cli_installed
-generate_secret_token
-link_vercel_project
-get_vercel_site_url
-set_vercel_env_variables
-prompt_datocms_token
-fetch_and_write_datocms_tokens_to_env
-set_datocms_tokens_on_vercel
-fetch_datocms_plugin_data
-update_webhook
-install_or_update_web_previews_plugin
-install_or_update_seo_plugin
-configure_slug_with_collections_plugin
+#ensure_vercel_cli_installed
+#generate_secret_token
+#link_vercel_project
+#get_vercel_site_url
+#set_vercel_env_variables
+#prompt_datocms_token
+#fetch_and_write_datocms_tokens_to_env
+#set_datocms_tokens_on_vercel
+#fetch_datocms_plugin_data
+#update_webhook
+#install_or_update_web_previews_plugin
+#install_or_update_seo_plugin
+#configure_slug_with_collections_plugin
 
 prompt_github_tokens
 
@@ -759,10 +840,10 @@ if [[ "$SKIP_GITHUB" != true ]]; then
   enable_github_pages
 fi
 
-remove_init_files
-extract_datocms_project_info
-update_readme_urls
-cleanup_readme_sections
-restore_workflows
-final_push
-trigger_vercel_deploy
+#remove_init_files
+#extract_datocms_project_info
+#update_readme_urls
+#cleanup_readme_sections
+#restore_workflows
+#final_push
+#trigger_vercel_deploy
