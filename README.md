@@ -290,7 +290,7 @@ Open `README.md` and:
     - `https://your-datocms-project.admin.datocms.com` → Your DatoCMS dashboard URL
     - `https://your-storybook-url.com` → Your GitHub Pages Storybook URL
 
-- Remove the `<!-- ORIGINAL-README-START -->` and `<!-- ORIGINAL-README-END -->` comments
+- Remove the `&lt;!-- ORIGINAL-README-START --&gt;` and `&lt;!-- ORIGINAL-README-END --&gt;` comments
 
 ---
 
