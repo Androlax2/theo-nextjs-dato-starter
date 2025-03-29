@@ -497,11 +497,78 @@ restore_workflows() {
 
 trigger_vercel_deploy() {
   echo ""
-  echo "🚀 Redeploying the project (production)..."
-  echo "⏳ This might take a few seconds... please wait until deployment is complete."
-  vercel --prod --yes
+  echo "🚀 Redeploying the project (production) in the background..."
+  nohup vercel --prod --yes &>/dev/null &
   echo ""
-  echo "🎉 Setup complete!"
+  echo "✅ Deployment triggered and running in the background!"
+  echo "IMPORTANT: The Vercel build will continue even if you close this terminal."
+}
+
+run_npm_install() {
+  echo ""
+  echo "⏳ Installing project dependencies via npm. Please wait..."
+  npm install
+  echo ""
+  echo "✅ npm install completed. All dependencies are now installed."
+}
+
+final_message_and_prompt() {
+  # If Git variables are not already set, get them from the remote URL.
+  if [ -z "$REPO_OWNER" ] || [ -z "$REPO_NAME" ]; then
+    REPO_URL=$(git config --get remote.origin.url)
+    if [ -n "$REPO_URL" ]; then
+      REPO_OWNER=$(echo "$REPO_URL" | sed -E 's#.*[:/]([^/]+)/.*#\1#')
+      REPO_NAME=$(echo "$REPO_URL" | sed -E 's#.*[:/][^/]+/([^/]+)\.git#\1#')
+    else
+      REPO_OWNER="your-github-username"
+      REPO_NAME="your-repo-name"
+    fi
+  fi
+
+  # Build URLs using the variables; use INTERNAL_DOMAIN if available for DatoCMS.
+  GITHUB_README_URL="https://github.com/${REPO_OWNER}/${REPO_NAME}#readme"
+  if [ -n "$INTERNAL_DOMAIN" ] && [ "$INTERNAL_DOMAIN" != "null" ]; then
+    DATOCMS_DASHBOARD_URL="https://${INTERNAL_DOMAIN}"
+  else
+    DATOCMS_DASHBOARD_URL="https://admin.datocms.com/projects"
+  fi
+  STORYBOOK_URL="https://${REPO_OWNER}.github.io/${REPO_NAME}"
+
+  echo ""
+  echo "--------------------------------------------------------"
+  echo "          🎉  SETUP COMPLETE!                           "
+  echo "--------------------------------------------------------"
+  echo ""
+  echo "IMPORTANT URLS:"
+  echo "  GitHub README:       ${GITHUB_README_URL}"
+  echo "  DatoCMS Dashboard:   ${DATOCMS_DASHBOARD_URL}"
+  echo "  Vercel App:          ${SITE_URL}"
+  if [ "$SKIP_GITHUB" != "true" ]; then
+    echo "  Storybook:           ${STORYBOOK_URL}"
+  fi
+  echo ""
+  echo "--------------------------------------------------------"
+  echo ""
+  echo "NOTE: The repository README now contains instructions on how to use this repo."
+  echo ""
+  echo "--------------------------------------------------------"
+  echo ""
+  echo "      ⚡️  RUN PROJECT NOW? (npm run dev)                "
+  echo ""
+  echo "Running the project will start your development server."
+  echo "Ensure all dependencies are installed before proceeding."
+  echo ""
+  echo "--------------------------------------------------------"
+  echo ""
+  read -rp "Do you want to run the project now with 'npm run dev'? [Y/n]: " RUN_ANSWER
+  if [[ "$RUN_ANSWER" =~ ^[Yy]$ || -z "$RUN_ANSWER" ]]; then
+    echo ""
+    echo "🚀 Starting project using 'npm run dev'..."
+    npm run dev
+  else
+    echo ""
+    echo "⌛ You chose not to start the project now. You can run 'npm run dev' later."
+  fi
 }
 
 function extract_datocms_project_info() {
@@ -803,8 +870,8 @@ enable_github_pages() {
     git reset --hard
     echo "# GitHub Pages placeholder" > index.html
     git add index.html
-    git commit -m "chore: init gh-pages"
-    git push origin gh-pages
+    git commit -m "chore: init gh-pages" --no-verify
+    git push origin gh-pages --no-verify
     git checkout "$CURRENT_BRANCH"
   fi
 
@@ -862,10 +929,10 @@ final_push() {
   git add .
 
   if [[ -n $(git status -s) ]]; then
-    git commit -m "chore: repository initialization updates"
+    git commit -m "chore: repository initialization updates" --no-verify
   fi
 
-  git push origin "$CURRENT_BRANCH"
+  git push origin "$CURRENT_BRANCH" --no-verify
   echo "✅ All changes pushed to '$CURRENT_BRANCH'"
 }
 
@@ -888,7 +955,7 @@ remove_init_files() {
     fi
 
   if [[ -n $(git status -s) ]]; then
-    git commit -m "chore: remove repository initialization files"
+    git commit -m "chore: remove repository initialization files" --no-verify
   fi
 }
 
@@ -948,3 +1015,5 @@ cleanup_readme_sections
 restore_workflows
 final_push
 trigger_vercel_deploy
+run_npm_install
+final_message_and_prompt
