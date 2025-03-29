@@ -81,56 +81,7 @@ cd YOUR_REPO_NAME
 
 ---
 
-### 10. 🔐 Set the Webhook Secret  
-
-You don’t need to manually create or configure any secret token — the setup script takes care of it for you.  
-
-It will automatically:
-
-- 🔐 Generate a secure token
-- ✅ Add it to your Vercel environment as `SECRET_API_TOKEN`
-- ✅ Configure your DatoCMS project:
-  - Webhook: **Invalidate Next.js Cache**
-  - Plugins:
-    - `datocms-plugin-web-previews`
-    - `datocms-plugin-seo-readability-analysis`
-
-> 🧠 Want to handle this manually instead?
->
-> You can generate your own token like this:
->
-> ```bash
-> openssl rand -hex 32
-> ```
-> Then follow the manual setup instructions below to apply it yourself.
-
----
-
-### 11. 🔧 Final Setup: Configure Vercel Environment Variables & Redeploy  
-
-We’ve bundled everything — secure token, environment variables, plugin + webhook config, GitHub Actions restore, and redeployment — into a single script:
-
----
-
-### 🪄 One-liner setup
-
-#### 1. 🛠 Install the Vercel CLI (if not already installed)
-
-```bash
-npm i -g vercel
-```
-
-Or with `pnpm` / `yarn`:
-
-```bash
-pnpm i -g vercel
-# or
-yarn global add vercel
-```
-
----
-
-#### 2. ▶️ Run the init script
+### 10. ▶️ Run the `init-project.sh` script
 
 From the root of your cloned repo:
 
@@ -139,298 +90,175 @@ chmod +x ./scripts/init-project.sh
 ./scripts/init-project.sh
 ```
 
-This will:
+This script will automate your entire setup in just a few minutes.
 
-- 🔐 **Generate a secure token**
-- 🌐 Detect your latest production deployment
-- 🔧 Set the `SITE_URL` and `SECRET_API_TOKEN` env vars on Vercel
-- 🔄 Update:
-  - ✅ Your **webhook URL** (Invalidate Next.js Cache)
-  - ✅ `datocms-plugin-web-previews`
-  - ✅ `datocms-plugin-seo-readability-analysis`
-- 🛠 Restore `.github/workflows/`
-- 🚀 Redeploy your project to production
-- 🧹 Delete itself after running
+> 💡 Prefer to do things manually?
+> 
+> No problem! You can skip the script and follow the detailed instructions in Step 11. 📝 Prefer Manual Setup?.
+> 
+> This is a great option if you want full control or you’re working in a restricted environment (e.g. no GitHub PAT).
 
 ---
 
-### ⏳ What happens next?
+### 11. 📝 Prefer Manual Setup?
 
-After the script completes:
-
-- 🔁 Your `README.md` will be updated with the **next steps of the project**
-- 🧭 This update is automatic and only takes a few seconds
-
-> 🕒 **Please wait ~30 seconds**, then **refresh your GitHub repository page** to see the updated README.
+If you prefer not to run the `init-project.sh` script, you can follow the steps below to manually configure your **Vercel + GitHub + DatoCMS** project.
 
 ---
 
-### 📝 Prefer Manual Setup?
+### 1. 🌐 Configure Project on Vercel
 
-You can still configure everything manually if needed:
-
----
-
-#### 1. Set environment variables via Vercel UI:
-
-Go to [https://vercel.com/dashboard](https://vercel.com/dashboard), select your project → **Settings** → **Environment Variables**, and add:
-
-| Key               | Value                                 |
-|------------------|---------------------------------------|
-| `SECRET_API_TOKEN` | The token you generated manually      |
-| `SITE_URL`         | Your deployed domain (e.g. `https://example.com`) |
-
-> ⚠️ Do not include a trailing slash in `SITE_URL`.
+- Open [https://vercel.com/dashboard](https://vercel.com/dashboard)
+- Create or select your project
+- Connect your GitHub repository (if not already)
+- Deploy your site
+- Copy your deployed URL (e.g. `https://your-project.vercel.app`)
 
 ---
 
-#### 2. Manually configure Webhooks and Plugins in DatoCMS:
+### 2. 🔐 Generate a Secret API Token
 
-- 🔁 **Webhook**:
-  - Go to **Settings → Webhooks**
-  - Edit the "Invalidate Next.js Cache" webhook
-  - Set the URL to:  
-    `https://your-vercel-domain/api/invalidate-cache?token=YOUR_SECRET`
-
-- 🧩 **Plugin Configs**:
-  - Go to **Settings → Plugins** → `datocms-plugin-web-previews`
-    - Set preview webhook to:  
-      `https://your-vercel-domain/api/preview-links?token=YOUR_SECRET`
-  - Then update `datocms-plugin-seo-readability-analysis`:
-    - Set Frontend metadata endpoint URL to:  
-      `https://your-vercel-domain/api/seo-analysis?token=YOUR_SECRET`
-    - Set Auto-apply to all JSON fields with the following API identifier: to:
-      - `seo_analysis`
-
----
-
-#### 3. Restore GitHub Actions manually:
+Generate a secure token using:
 
 ```bash
-mv .github/_workflows .github/workflows
-rm -rf .github/_workflows
-git add .github/workflows
-git add .github/_workflows
-git commit -m "Restore GitHub Actions workflows"
-git push
+openssl rand -hex 32
 ```
 
-> 🕒 After pushing, wait ~30 seconds and refresh the repo page — a GitHub Action will update the README with the next steps.
+- Copy the generated token
+- This will be your `SECRET_API_TOKEN`
 
 ---
 
-#### 4. Redeploy manually:
+### 3. 📁 Create `.env.local` File
 
-Via CLI:
-
-```bash
-vercel --prod
-```
-
-Or via the **Vercel UI**:
-
-- Go to [https://vercel.com/dashboard](https://vercel.com/dashboard)
-- Open your project
-- Click **"Deployments"** → **"+" (top right)** → **"Create deployment"**
-
----
-
-Once complete, your project is fully configured and deployed!  
-
-🕒 **Hang tight — it may take around 30 seconds for everything to finalize.**  
-🔁 When ready, **refresh this page** to see the next steps.
-
----
-<!-- INIT-REPO-END -->
-
-<!-- REPO-CLONED-START
-## ✅ You're Almost Ready!
-
-Now that you've cloned this repository, follow these steps to finish the setup:
-
----
-
-### 🌱 1. Set Up Environment Variables
-
-Copy the example `.env` file into a working one:
+Copy the example environment file:
 
 ```bash
 cp .env.local.example .env.local
 ```
 
-Then in your [DatoCMS project](https://dashboard.datocms.com):
+Go to your [DatoCMS dashboard](https://your-datocms-project.admin.datocms.com):
 
-1. Go to **Settings → API tokens**
-2. Copy and paste the following values into your `.env.local` file:
+- Navigate to **Project Settings → API tokens**
+- Copy the following tokens and paste them into your `.env.local` file:
 
-| Variable                             | Source / Description            |
-|--------------------------------------|---------------------------------|
-| `DATOCMS_PUBLISHED_CONTENT_CDA_TOKEN` | DatoCMS – CDA Only (Published)  |
-| `DATOCMS_DRAFT_CONTENT_CDA_TOKEN`     | DatoCMS – CDA Only (Draft)      |
-| `DATOCMS_CMA_TOKEN`                   | DatoCMS – CMA Only (Admin)      |
-| `SECRET_API_TOKEN`                    | Value generated earlier         |
-
-Make sure your `.env.local` contains all of the above before proceeding.
+| Variable                              | Source                      |
+|---------------------------------------|-----------------------------|
+| `DATOCMS_PUBLISHED_CONTENT_CDA_TOKEN` | CDA Only (Published)        |
+| `DATOCMS_DRAFT_CONTENT_CDA_TOKEN`     | CDA Only (Draft)            |
+| `DATOCMS_CMA_TOKEN`                   | CMA Only (Admin)            |
+| `SECRET_API_TOKEN`                    | Your generated secret token |
 
 ---
 
-### 🔐 2. Create a GitHub Personal Access Token (PAT)
+### 4. ☁️ Set Vercel Environment Variables (via UI)
 
-Go to [https://github.com/settings/personal-access-tokens](https://github.com/settings/personal-access-tokens)  
-→ Click **“Generate new token (classic)”** or create a **fine-grained token**
+1. Open [https://vercel.com/dashboard](https://vercel.com/dashboard)
+2. Select your project
+3. Go to **Settings → Environment Variables**
+4. Add the following variables:
 
-> **Scope: Read & Write access**
+| **Key**                             | **Value**                                                    |
+|------------------------------------|--------------------------------------------------------------|
+| `SITE_URL`                         | Your deployed site URL (e.g. `https://your-project.vercel.app`) |
+| `SECRET_API_TOKEN`                 | The secure token you generated                              |
+| `DATOCMS_PUBLISHED_CONTENT_CDA_TOKEN` | From DatoCMS → CDA Only (Published)                     |
+| `DATOCMS_DRAFT_CONTENT_CDA_TOKEN`     | From DatoCMS → CDA Only (Draft)                         |
+| `DATOCMS_CMA_TOKEN`                   | From DatoCMS → CMA Only (Admin)                         |
 
-Enable these permissions:
-
-#### 🔧 Repository permissions:
-- ✅ **Administration**
-- ✅ **Dependabot secrets**
-- ✅ **Environments**
-- ✅ **Pages**
-- ✅ **Secrets**
-
-📌 Save this token securely — you’ll use it during repository initialization.
-
-> ⚠️ If you're creating this token under an **organization**, it may require approval from an admin before it can be used.  
+> 💡 Make sure you **do not include a trailing slash** in `SITE_URL`.
 
 ---
 
-### 📊 3. (Optional) Set Up Lighthouse CI
+### 5. 🔁 Configure Webhook in DatoCMS
 
-> 🧪 This step is **optional** — only needed if you want to enable Lighthouse CI reports in GitHub Actions.
+In your DatoCMS project:
 
-1. Visit [https://github.com/apps/lighthouse-ci](https://github.com/apps/lighthouse-ci)
-2. Click on **Configure**
-3. Choose the repo you just cloned
-4. Copy the **project token**
+- Go to **Settings → Webhooks**
+- Create or edit a webhook with the following settings:
 
-📌 Save this token — it will be used during the next step if you enable Lighthouse CI.
-
----
-
-### ⚙️ 4. Initialize the Repository
-
-Open the **Actions** tab in this GitHub repo, then:
-
-- Find the **`Initialize Repo`** workflow on the left
-- Click **“Run workflow”** on the right side
-- Fill in the inputs:
-  - 🧪 Paste your full `.env.local` content
-  - 🔑 Your GitHub Personal Access Token
-  - 🌐 Your deployed Vercel site URL (e.g. `https://your-site.vercel.app`)
-  - 📊 _(Optional)_ Your Lighthouse CI App token
-
-> 🕐 After clicking Run, wait until the GitHub Action completes successfully.
-> You’ll see your repository auto-configure itself (secrets, README, GitHub Pages, etc.).
-
-Once it’s done, you’re ready to work with the repo as usual! ✅
+| Field   | Value |
+|---------|-------|
+| **Name** | Invalidate Next.js Cache |
+| **URL**  | `https://your-project.vercel.app/api/invalidate-cache?token=YOUR_SECRET` |
 
 ---
 
-### 🛟 5. If Initialization Fails...
+### 6. 🧩 Install and Configure Plugins in DatoCMS
 
-If the automatic GitHub Action fails to initialize the repository, you can complete the setup manually using the GitHub web interface and local Git.
+#### A. Web Previews Plugin
 
----
-
-### 1. Add Repository Secrets in GitHub
-
-1. Go to your GitHub repository.
-2. Navigate to **Settings → Secrets and variables → Actions**.
-3. Click **“New repository secret”** and add the following:
-
-| Name                             | Value |
-|----------------------------------|--------|
-| DATOCMS_PUBLISHED_CONTENT_CDA_TOKEN | From DatoCMS |
-| DATOCMS_DRAFT_CONTENT_CDA_TOKEN     | From DatoCMS |
-| DATOCMS_CMA_TOKEN                   | From DatoCMS |
-| SECRET_API_TOKEN                    | A secure token you define |
-| SITE_URL                            | e.g. https://your-site.vercel.app |
-| LHCI_GITHUB_APP_TOKEN *(optional)*  | From [Lighthouse CI GitHub App](https://github.com/apps/lighthouse-ci) |
-
-Repeat the process under **Settings → Secrets and variables → Dependabot**.
-
----
-
-### 2. Enable GitHub Pages (using GitHub UI only)
-
-1. Go to your repository’s **Code** tab.
-2. Click the branch selector (top-left, usually says `main`).
-3. Type `gh-pages` and click **"Create branch: gh-pages from 'main'"**.
-4. Go to **Settings → Pages**.
-5. Under **Pages**, set:
-   - **Source**: `Deploy from a branch`
-   - **Branch**: `gh-pages`
-   - **Folder**: `/ (root)`
-6. Click **Save**.
-
----
-
-### 3. Configure Repository Settings
-
-Go to your repository’s **Code** tab.
-
-- On the right, on **About**: Set the Website to your deployed site (e.g. `https://your-site.vercel.app`)
-
-Go to your repository’s **Settings → General → Features** tab.
-
-- Disable **Projects**
-- Disable **Wiki**
-
-Then go to **Settings → General → Pull Requests** and configure:
-
-- Disable **Allow merge commits**
-- Disable **Allow rebase merging**
-- Enable **Allow squash merging**
-  - **Default commit message**: Pull request title and description
-- Enable **Automatically delete head branches**
-
----
-
-### 4. Clean Up Initialization Files Locally
-
-Once everything is working, remove the setup-related files locally and push the changes:
+- Install `datocms-plugin-web-previews` via DatoCMS Plugin Hub
+- Set **Preview URL** to:
 
 ```bash
-git rm -r \
-  .github/workflows/init-repo.yml \
-  .github/workflows/reveal-clone-repo-readme.yml \
-  scripts/initialize-repo.sh \
-  scripts/init-project.sh \
-  datocms.json \
-  src/app/api/post-deploy
+https://your-project.vercel.app/api/preview-links?token=YOUR_SECRET
+```
 
-git commit -m "chore: remove repository initialization files"
+---
+
+#### B. SEO Analysis Plugin
+
+- Install `datocms-plugin-seo-readability-analysis`
+- Set **Frontend metadata endpoint** to:
+
+```bash
+https://your-project.vercel.app/api/seo-analysis?token=YOUR_SECRET
+```
+
+- Enable **Auto-apply to fields with API key**: `seo_analysis`
+
+---
+
+#### C. Slug With Collections Plugin
+
+- Install `datocms-plugin-slug-with-collections`
+
+- Go to **API Tokens**
+- Use a readonly token: **Read-only API token**
+- Configure the plugin with this token in its settings
+
+---
+
+### 7. 🔁 Restore GitHub Actions
+
+If `.github/_workflows` exists, run:
+
+```bash
+mv .github/_workflows .github/workflows
+git add .github/workflows
+git commit -m "Restore GitHub Actions workflows"
 git push
 ```
 
 ---
 
-### 5. Clean Up the README
+### 8. 🧽 Clean Up README.md
 
-Manually open `README.md` and:
+Open `README.md` and:
 
-- Delete everything between:
-  &lt;!-- INIT-REPO-START --&gt; and &lt;!-- INIT-REPO-END --&gt;
-- Delete everything before &lt;!-- ORIGINAL-README-START
-- Remove the two lines used to comment out the original README:
-  - &lt;!-- ORIGINAL-README-START
-  - ORIGINAL-README-END --&gt;
-- Replace **[__PROJECT_TITLE__]** by your project title
-- Replace **https://your-datocms-project.admin.datocms.com** by your DatoCMS project admin dashboard URL
-- Replace **https://your-storybook-url.com** by your Github Pages URL, you can find it under **Settings → Pages**
+- Remove everything between:
+    - `<!-- INIT-REPO-START -->` and `<!-- INIT-REPO-END -->`
 
-```bash
-git add README.md
-git commit -m "docs: clean up readme after manual setup"
-git push
-```
+- Replace placeholders:
+    - `[__PROJECT_TITLE__]` → Your project title
+    - `https://your-datocms-project.admin.datocms.com` → Your DatoCMS dashboard URL
+    - `https://your-storybook-url.com` → Your GitHub Pages Storybook URL
+
+- Remove the `<!-- ORIGINAL-README-START` and `<!-- ORIGINAL-README-END` comments
 
 ---
 
-Once complete, your repository is fully configured and ready for development.
-REPO-CLONED-END -->
+### 9. 🚀 Redeploy via Vercel
+
+- Go to [https://vercel.com/dashboard](https://vercel.com/dashboard)
+- Select your project → Go to **Deployments**
+- Click **"Create Deployment"**
+
+---
+
+Your project is now **fully configured and deployed**! ✅
+<!-- INIT-REPO-END -->
 
 <!-- ORIGINAL-README-START
 # [__PROJECT_TITLE__]
