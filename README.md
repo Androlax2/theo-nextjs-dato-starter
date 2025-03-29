@@ -106,6 +106,10 @@ If you prefer not to run the `init-project.sh` script, you can follow the steps 
 
 ---
 
+## 🧩 Part 1 — DatoCMS Configuration
+
+---
+
 ### 1. 🌐 Configure Project on Vercel
 
 - Open [https://vercel.com/dashboard](https://vercel.com/dashboard)
@@ -158,13 +162,13 @@ Go to your [DatoCMS dashboard](https://your-datocms-project.admin.datocms.com):
 3. Go to **Settings → Environment Variables**
 4. Add the following variables:
 
-| **Key**                             | **Value**                                                    |
-|------------------------------------|--------------------------------------------------------------|
-| `SITE_URL`                         | Your deployed site URL (e.g. `https://your-project.vercel.app`) |
-| `SECRET_API_TOKEN`                 | The secure token you generated                              |
-| `DATOCMS_PUBLISHED_CONTENT_CDA_TOKEN` | From DatoCMS → CDA Only (Published)                     |
-| `DATOCMS_DRAFT_CONTENT_CDA_TOKEN`     | From DatoCMS → CDA Only (Draft)                         |
-| `DATOCMS_CMA_TOKEN`                   | From DatoCMS → CMA Only (Admin)                         |
+| **Key**                                | **Value**                                                      |
+|----------------------------------------|----------------------------------------------------------------|
+| `SITE_URL`                             | Your deployed site URL (e.g. `https://your-project.vercel.app`) |
+| `SECRET_API_TOKEN`                     | The secure token you generated                                |
+| `DATOCMS_PUBLISHED_CONTENT_CDA_TOKEN`  | From DatoCMS → CDA Only (Published)                           |
+| `DATOCMS_DRAFT_CONTENT_CDA_TOKEN`      | From DatoCMS → CDA Only (Draft)                               |
+| `DATOCMS_CMA_TOKEN`                    | From DatoCMS → CMA Only (Admin)                               |
 
 > 💡 Make sure you **do not include a trailing slash** in `SITE_URL`.
 
@@ -177,10 +181,10 @@ In your DatoCMS project:
 - Go to **Settings → Webhooks**
 - Create or edit a webhook with the following settings:
 
-| Field   | Value |
-|---------|-------|
-| **Name** | Invalidate Next.js Cache |
-| **URL**  | `https://your-project.vercel.app/api/invalidate-cache?token=YOUR_SECRET` |
+| Field     | Value                                                                 |
+|-----------|-----------------------------------------------------------------------|
+| **Name**  | Invalidate Next.js Cache                                              |
+| **URL**   | `https://your-project.vercel.app/api/invalidate-cache?token=YOUR_SECRET` |
 
 ---
 
@@ -188,7 +192,7 @@ In your DatoCMS project:
 
 #### A. Web Previews Plugin
 
-- Install `datocms-plugin-web-previews` via DatoCMS Plugin Hub
+- Install `datocms-plugin-web-previews` or update the existing one
 - Set **Preview URL** to:
 
 ```bash
@@ -199,7 +203,7 @@ https://your-project.vercel.app/api/preview-links?token=YOUR_SECRET
 
 #### B. SEO Analysis Plugin
 
-- Install `datocms-plugin-seo-readability-analysis`
+- Install `datocms-plugin-seo-readability-analysis` or update the existing one
 - Set **Frontend metadata endpoint** to:
 
 ```bash
@@ -212,11 +216,14 @@ https://your-project.vercel.app/api/seo-analysis?token=YOUR_SECRET
 
 #### C. Slug With Collections Plugin
 
-- Install `datocms-plugin-slug-with-collections`
-
+- Install `datocms-plugin-slug-with-collections` or update the existing one
 - Go to **API Tokens**
-- Use a readonly token: **Read-only API token**
+- Use a **Read-only API token**
 - Configure the plugin with this token in its settings
+
+---
+
+## 🛠️ Part 2 — GitHub Repository Configuration
 
 ---
 
@@ -233,7 +240,43 @@ git push
 
 ---
 
-### 8. 🧽 Clean Up README.md
+### 8. ⚙️ Configure Repository Settings (via GitHub UI)
+
+1. Go to your repository on GitHub
+2. Click **Settings → General**
+
+#### General Settings:
+
+- ✅ Enable **Squash merging**
+- 🚫 Disable **Merge commits**
+- 🚫 Disable **Rebase merging**
+- ✅ Enable **Automatically delete head branches**
+- ✅ Enable **Issues**
+- 🚫 Disable **Projects** (unless needed)
+- 🚫 Disable **Wikis**
+- Set **Project homepage** to your deployed URL (e.g. `https://your-project.vercel.app`)
+
+---
+
+### 9. 🔐 Add GitHub Secrets (for Actions & Dependabot)
+
+Go to **Settings → Secrets and variables**:
+
+- Under both **Actions** _and_ **Dependabot**, add the following secrets:
+
+| Name                                 | Value                                       |
+|--------------------------------------|---------------------------------------------|
+| `DATOCMS_PUBLISHED_CONTENT_CDA_TOKEN`| From DatoCMS: CDA Only (Published)          |
+| `DATOCMS_DRAFT_CONTENT_CDA_TOKEN`    | From DatoCMS: CDA Only (Draft)              |
+| `DATOCMS_CMA_TOKEN`                  | From DatoCMS: CMA Only (Admin)              |
+| `SITE_URL`                           | Your deployed Vercel URL                    |
+| `SECRET_API_TOKEN`                   | The secure token you generated              |
+
+> 🛡️ If you're using **Lighthouse CI**, also add `LHCI_GITHUB_APP_TOKEN` in both locations.
+
+---
+
+### 10. 🧽 Clean Up README.md
 
 Open `README.md` and:
 
@@ -245,11 +288,11 @@ Open `README.md` and:
     - `https://your-datocms-project.admin.datocms.com` → Your DatoCMS dashboard URL
     - `https://your-storybook-url.com` → Your GitHub Pages Storybook URL
 
-- Remove the `<!-- ORIGINAL-README-START` and `<!-- ORIGINAL-README-END` comments
+- Remove the `<!-- ORIGINAL-README-START -->` and `<!-- ORIGINAL-README-END -->` comments
 
 ---
 
-### 9. 🚀 Redeploy via Vercel
+### 11. 🚀 Redeploy via Vercel
 
 - Go to [https://vercel.com/dashboard](https://vercel.com/dashboard)
 - Select your project → Go to **Deployments**
