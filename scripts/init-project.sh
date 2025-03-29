@@ -538,7 +538,7 @@ prompt_github_tokens() {
 
   echo ""
   echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-  echo "📊  (Optional) Lighthouse CI Token (Step 3 in README)"
+  echo "📊  (Optional) Lighthouse CI Token"
   echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
   echo "🧪 Only needed if you want to enable Lighthouse CI reports in GitHub Actions"
   echo "→ Get it from: https://github.com/apps/lighthouse-ci"
