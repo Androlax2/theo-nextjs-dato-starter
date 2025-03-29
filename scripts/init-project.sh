@@ -461,6 +461,7 @@ restore_workflows() {
     mv .github/_workflows .github/workflows
     rm -rf .github/_workflows
     git add .github/workflows
+    git rm -r --cached .github/_workflows
     git commit -m "Restore GitHub Actions workflows" --no-verify
     git push --no-verify
     echo "✅ Workflows restored and pushed to the repo."
