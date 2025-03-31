@@ -895,6 +895,9 @@ enable_github_pages() {
     echo "ℹ️ GitHub Pages not enabled yet. Proceeding to enable it..."
   fi
 
+  echo "⏳ Waiting 5 seconds for GitHub to register the 'gh-pages' branch..."
+  sleep 5
+
   echo "🔧 Setting GitHub Pages source to gh-pages branch (root)..."
   set +e
   gh_output=$(gh api "repos/${REPO_OWNER}/${REPO_NAME}/pages" \
