@@ -74,10 +74,10 @@ set_vercel_env_variables() {
   echo "📦 Setting Vercel environment variables..."
 
   vercel env rm SITE_URL --yes || true
-  echo "$SITE_URL" | vercel env add SITE_URL production
+  printf %s "$SITE_URL" | vercel env add SITE_URL production
 
   vercel env rm SECRET_API_TOKEN --yes || true
-  echo "$SECRET_TOKEN" | vercel env add SECRET_API_TOKEN production
+  printf %s "$SECRET_TOKEN" | vercel env add SECRET_API_TOKEN production
 }
 
 fetch_and_write_datocms_tokens_to_env() {
