@@ -854,6 +854,26 @@ set_github_secrets() {
     fi
   fi
 
+  echo ""
+  echo "🏷️  Creating 'Run Lighthouse' PR label on GitHub..."
+
+  set +e
+  label_create_output=$(gh api -X POST repos/"$REPO_OWNER"/"$REPO_NAME"/labels \
+    -f name="Run Lighthouse" \
+    -f color="f9d0c4" \
+    -f description="Trigger Lighthouse CI via GitHub Actions" 2>&1)
+  exit_code=$?
+  set -e
+
+  if [[ $exit_code -eq 0 ]]; then
+    echo "✅ Label 'Run Lighthouse' created."
+  elif echo "$label_create_output" | grep -q "already exists"; then
+    echo "ℹ️ Label 'Run Lighthouse' already exists."
+  else
+    echo "❌ Failed to create label 'Run Lighthouse'. Output:"
+    echo "$label_create_output"
+  fi
+
   echo "✅ All GitHub secrets set successfully."
 }
 
