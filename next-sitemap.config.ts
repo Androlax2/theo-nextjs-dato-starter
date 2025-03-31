@@ -3,6 +3,12 @@ import type { IConfig } from "next-sitemap";
 
 const serverSitemap = "/server-sitemap.xml";
 
+const additionalSitemaps = [];
+
+if (process.env.NODE_ENV === "production") {
+  additionalSitemaps.push(getBaseUrl(serverSitemap));
+}
+
 const config: IConfig = {
   siteUrl: getBaseUrl(),
   generateRobotsTxt: true,
@@ -14,10 +20,7 @@ const config: IConfig = {
     process.env.NODE_ENV !== "production" ? `/${serverSitemap}` : "",
   ],
   robotsTxtOptions: {
-    additionalSitemaps: [
-      // Include the server sitemap page in the `robots.txt` file in production.
-      process.env.NODE_ENV === "production" ? getBaseUrl(serverSitemap) : "",
-    ],
+    additionalSitemaps,
   },
 };
 
