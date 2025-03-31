@@ -918,7 +918,6 @@ enable_github_pages() {
     echo "   - Repository → Administration"
     echo ""
     echo "📌 If this is an organization repo, token approval may be required."
-    exit 1
   fi
 }
 
