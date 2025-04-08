@@ -2,6 +2,8 @@ commit-msg:
   scripts:
     "commitlint.sh":
       runner: bash
+    "spellcheck-commit-msg.sh":
+      runner: bash
 
 pre-commit:
   commands:
@@ -11,7 +13,7 @@ pre-commit:
       stage_fixed: true
 
     cspell:
-      run: npm run spellcheck
+      run: git diff --cached --name-only | npx cspell --no-summary --no-progress --no-must-find-files --file-list stdin
 
 pre-push:
   commands:
