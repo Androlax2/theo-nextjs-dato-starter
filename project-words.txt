@@ -3,3 +3,8 @@ sitemapindex
 LHCI
 LQIP
 frontends
+embla
+usehooks
+notif
+lefthook
+greyscale
