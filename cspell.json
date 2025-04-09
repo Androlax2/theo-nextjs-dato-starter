@@ -29,7 +29,8 @@
     "**/*.map",
     "**/*.d.ts",
     "lefthook.yml",
-    "cspell.json"
+    "cspell.json",
+    "schema.graphql"
   ],
   "ignoreRegExpList": ["(^|[^a-z])sl[a-z]*(^|[^a-z])"],
   "useGitignore": true
