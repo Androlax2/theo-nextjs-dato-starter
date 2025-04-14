@@ -26,9 +26,9 @@ export const DynamicContentRendererFragment = graphql(
   /* GraphQL */ `
     fragment DynamicContentRendererFragment on ContentRecord {
         content {
-            __typename
             ... on RecordInterface {
                 id
+                __typename
             }
             ... on ImageGalleryBlockRecord {
                 ...ImageGalleryBlockFragment
