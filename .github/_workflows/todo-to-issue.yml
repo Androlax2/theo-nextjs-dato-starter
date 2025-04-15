@@ -1,29 +1,39 @@
-name: "Run TODO to Issue"
-on: [ "push" ]
+name: "Run TODO to Issue on PR Push"
+on:
+  pull_request:
+    types: [synchronize, opened, reopened]
+
 jobs:
-  build:
-    runs-on: "ubuntu-latest"
+  todo-to-issue:
+    runs-on: ubuntu-latest
     permissions:
       contents: write
       issues: write
       pull-requests: write
+
     steps:
-      - uses: "actions/checkout@v4"
-      - name: "TODO to Issue"
-        uses: "alstr/todo-to-issue-action@v5"
+      - name: Checkout PR branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
+
+      - name: Run TODO to Issue
+        uses: alstr/todo-to-issue-action@v5
         with:
           INSERT_ISSUE_URLS: "true"
           CLOSE_ISSUES: "true"
+
       - name: Set Git user
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
       - name: Commit and Push Changes
         run: |
           git add -A
           if [[ `git status --porcelain` ]]; then
             git commit -m "Automatically added GitHub issue links to TODOs"
-            git push origin main
+            git push origin HEAD:${{ github.head_ref }}
           else
             echo "No changes to commit"
           fi
