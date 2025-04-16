@@ -17,6 +17,10 @@ pre-commit:
 
 pre-push:
   commands:
+    typescriptCheck:
+        glob: "*.{ts,tsx}"
+        run: npm run typescript-check
+
     check:
       glob: "*.{js,ts,cjs,mjs,d.cts,d.mts,jsx,tsx,json,jsonc}"
       run: npx @biomejs/biome check --no-errors-on-unmatched --files-ignore-unknown=true --colors=off {push_files}
@@ -24,7 +28,3 @@ pre-push:
     test:
       # Run tests only for affected files
       run: git diff --name-only origin/main...HEAD | grep -E '\.(js|jsx|ts|tsx)$' | xargs -r npx jest --findRelatedTests --passWithNoTests
-
-    typescriptCheck:
-        glob: "*.{ts,tsx}"
-        run: npm run typescript-check
