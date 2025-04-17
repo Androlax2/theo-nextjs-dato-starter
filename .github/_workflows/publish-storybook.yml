@@ -50,6 +50,9 @@ jobs:
         if: steps.check.outputs.exists == 'true'
         run: cp ignore-step.sh storybook-static/
 
+      - name: Add .nojekyll file
+        run: touch storybook-static/.nojekyll
+
       - name: Deploy Storybook to GitHub Pages
         if: steps.check.outputs.exists == 'true'
         uses: JamesIves/github-pages-deploy-action@v4
