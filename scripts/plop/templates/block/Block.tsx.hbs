@@ -15,7 +15,7 @@ import { type FragmentOf, graphql, readFragment } from "@/lib/datocms/graphql";
 export const {{pascalCase name}}Fragment = graphql(
   /* GraphQL */ `
     fragment {{pascalCase name}}Fragment on {{pascalCase name}}Record {
-      __typename
+      id
       # Define the fields needed for the component
     }
   `,
@@ -30,11 +30,11 @@ type Props = {
 
 export default function {{pascalCase name}}({ data }: Props) {
   // Read unmasked data from fragment
-  const unmaskedData = readFragment({{pascalCase name}}Fragment, data);
+  const { id } = readFragment({{pascalCase name}}Fragment, data);
 
   return (
     <div>
-        <p>{unmaskedData.__typename}</p>
+      <p>{id}</p>
     </div>
   );
 }
