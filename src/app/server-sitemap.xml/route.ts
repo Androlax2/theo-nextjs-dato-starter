@@ -6,15 +6,21 @@ import { hasLocale } from "next-intl";
 import { type ISitemapField, getServerSideSitemap } from "next-sitemap";
 import type { Locale } from "use-intl";
 
-/** GraphQL query to retrieve published pages and their localized slugs from CMS. */
-const allPagesQuery = graphql(/* GraphQL */ `
-    query AllPagesQuery {
-        allPages {
-            _publishedAt
+/**
+ * GraphQL query to retrieve published pages with pagination.
+ * Uses the first/skip pattern for pagination.
+ */
+const sitemapPagesQuery = graphql(/* GraphQL */ `
+    query SitemapPagesQuery($first: IntType = 100, $skip: IntType = 0) {
+        allPages(first: $first, skip: $skip) {
+            _updatedAt
             _allSlugLocales {
                 value
                 locale
             }
+        }
+        _allPagesMeta {
+            count
         }
     }
 `);
@@ -44,9 +50,43 @@ const staticRoutes: string[] = [
  * @returns A dynamically generated sitemap for Next.js.
  */
 export async function GET() {
-  const { allPages } = await executeQuery(allPagesQuery, {
+  let totalPages = 0;
+  const pageSize = 100;
+
+  const initialResult = await executeQuery(sitemapPagesQuery, {
     includeDrafts: false,
+    variables: {
+      first: pageSize,
+      skip: 0,
+    },
   });
+
+  let allPages = [...initialResult.allPages];
+  totalPages = initialResult._allPagesMeta.count;
+
+  // If we have more pages than the initial request can return,
+  // fetch the remaining pages
+  if (totalPages > pageSize) {
+    const remainingRequests = Math.ceil(totalPages / pageSize) - 1;
+
+    const remainingPagesPromises = Array.from(
+      { length: remainingRequests },
+      (_, i) =>
+        executeQuery(sitemapPagesQuery, {
+          includeDrafts: false,
+          variables: {
+            first: pageSize,
+            skip: (i + 1) * pageSize,
+          },
+        }),
+    );
+
+    const remainingResults = await Promise.all(remainingPagesPromises);
+
+    for (const result of remainingResults) {
+      allPages = [...allPages, ...result.allPages];
+    }
+  }
 
   /** Generates sitemap entries dynamically from CMS-managed content. */
   const dynamicSitemapEntries: ISitemapField[] = allPages.flatMap((page) =>
@@ -56,7 +96,7 @@ export async function GET() {
       )
       .flatMap((slugLocale) => ({
         loc: getLocalizedUrl(`/${slugLocale.value}`, slugLocale.locale),
-        lastmod: page._publishedAt ?? undefined,
+        lastmod: page._updatedAt ?? undefined,
       })),
   );
 
