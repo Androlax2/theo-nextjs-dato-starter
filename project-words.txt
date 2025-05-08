@@ -8,3 +8,4 @@ usehooks
 notif
 lefthook
 greyscale
+lastmod
