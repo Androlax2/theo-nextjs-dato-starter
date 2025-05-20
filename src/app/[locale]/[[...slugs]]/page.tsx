@@ -38,18 +38,19 @@ const query = graphql(
 /**
  * A separate query to fetch all pages from DatoCMS for static path generation.
  */
-const allPagesQuery = graphql(
-  /* GraphQL */ `
-        query AllPagesQuery {
-            allPages {
-                _allSlugLocales {
-                    value
-                    locale
-                }
+const allPagesQuery = graphql(/* GraphQL */ `
+    query LocalizedPagesQuery($skip: IntType!, $first: IntType!) {
+        allPages(skip: $skip, first: $first) {
+            _allSlugLocales {
+                value
+                locale
             }
         }
-    `,
-);
+        _allPagesMeta {
+            count
+        }
+    }
+`);
 
 type PageProps = WithLocaleProps<{ slugs?: string[] }>;
 
@@ -111,25 +112,32 @@ export async function generateMetadata(
 export async function generateStaticParams(): Promise<
   Array<{ locale: Locale; slugs?: string[] }>
 > {
-  const data = await executeQuery(allPagesQuery, { includeDrafts: false });
+  const pageSize = 100;
+
+  const {
+    _allPagesMeta: { count: totalCount },
+  } = await executeQuery(allPagesQuery, {
+    includeDrafts: false,
+    variables: { skip: 0, first: 1 },
+  });
+
   const paths: Array<{ locale: Locale; slugs?: string[] }> = [];
 
-  // Iterate over each page and each locale version of its slug.
-  for (const page of data.allPages) {
-    if (!page._allSlugLocales) {
-      continue;
-    }
+  for (let skip = 0; skip < totalCount; skip += pageSize) {
+    const { allPages } = await executeQuery(allPagesQuery, {
+      includeDrafts: false,
+      variables: { skip, first: pageSize },
+    });
 
-    for (const slugLocale of page._allSlugLocales) {
-      if (!hasLocale(routing.locales, slugLocale.locale)) {
-        continue;
+    for (const page of allPages) {
+      for (const { value, locale } of page._allSlugLocales || []) {
+        if (!hasLocale(routing.locales, locale)) continue;
+        paths.push({
+          locale,
+          // If the value is an empty string, we treat it as the homepage.
+          slugs: value ? value.split("/") : undefined,
+        });
       }
-
-      paths.push({
-        locale: slugLocale.locale,
-        // If the value is an empty string, we treat it as the homepage.
-        slugs: slugLocale.value ? slugLocale.value.split("/") : undefined,
-      });
     }
   }
 
