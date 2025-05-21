@@ -42,6 +42,7 @@ jobs:
       - name: Create .env.local file
         if: steps.check_label.outputs.label_found == 'true'
         run: |
+          echo "DATOCMS_CMA_TOKEN=${{ secrets.DATOCMS_CMA_TOKEN }}" >> .env.local
           echo "DATOCMS_PUBLISHED_CONTENT_CDA_TOKEN=${{ secrets.DATOCMS_PUBLISHED_CONTENT_CDA_TOKEN }}" >> .env.local
           echo "DATOCMS_DRAFT_CONTENT_CDA_TOKEN=${{ secrets.DATOCMS_DRAFT_CONTENT_CDA_TOKEN }}" >> .env.local
           echo "SITE_URL=http://localhost:3000" >> .env.local
@@ -67,6 +68,10 @@ jobs:
       - name: Install dependencies
         if: steps.check_label.outputs.label_found == 'true'
         run: npm ci
+
+      - name: Generate urls
+        if: steps.check_label.outputs.label_found == 'true'
+        run: npm run lhci:generate-urls
 
       - name: Build
         if: steps.check_label.outputs.label_found == 'true'

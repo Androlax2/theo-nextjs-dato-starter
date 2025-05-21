@@ -9,3 +9,5 @@ notif
 lefthook
 greyscale
 lastmod
+nextjs
+lighthouseci
