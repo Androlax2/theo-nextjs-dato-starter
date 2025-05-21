@@ -10,17 +10,10 @@ module.exports = deepmerge(commonConfig, {
     },
     assert: {
       assertions: {
-        // Mobile devices typically have lower performance scores, so 0.5 is a common baseline.
-        "categories:performance": ["error", { minScore: 0.5 }],
-
-        // Accessibility should remain high regardless of form factor.
-        "categories:accessibility": ["error", { minScore: 0.9 }],
-
-        // Best practices are essential for a smooth user experience.
-        "categories:best-practices": ["error", { minScore: 0.9 }],
-
-        // SEO is critical to drive traffic, so keep the score high.
-        "categories:seo": ["error", { minScore: 0.9 }],
+        "categories:performance": ["error", { minScore: 0.6 }],
+        "categories:accessibility": ["error", { minScore: 0.95 }],
+        "categories:best-practices": ["error", { minScore: 1.0 }],
+        "categories:seo": ["error", { minScore: 1.0 }],
       },
     },
   },
