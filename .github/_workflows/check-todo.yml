@@ -21,7 +21,7 @@ jobs:
           SEARCH_PATHS="./src ./messages"
 
           # Run grep while excluding node_modules, build output, and git
-          TODOS=$(grep -Rn "TODO" $SEARCH_PATHS \
+          TODOS=$(grep -Rin "\bTODO\b" $SEARCH_PATHS \
             --exclude-dir={.git,.next,node_modules,dist,build,.github} \
             --exclude=*.lock || true)
 
